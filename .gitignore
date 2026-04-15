@@ -1,0 +1,59 @@
+# ========================
+# Java / Gradle / Spring Boot
+# ========================
+build/
+.gradle/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+hs_err_pid*
+gradle-app.setting
+!gradle-wrapper.jar
+
+# ========================
+# Node / Angular
+# ========================
+node_modules/
+dist/
+.angular/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+
+# ========================
+# Environment / Secrets
+# ========================
+.env
+*.env.local
+
+# ========================
+# Docker
+# ========================
+docker-compose.override.yml
+
+# ========================
+# IDEs
+# ========================
+.idea/
+*.iml
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ========================
+# OS
+# ========================
+.DS_Store
+Thumbs.db
+
+# ========================
+# Temporary workspace files
+# ========================
+context/

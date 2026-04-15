@@ -1,0 +1,41 @@
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/ycyw}
+    username: ${SPRING_DATASOURCE_USERNAME:ycyw_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:changeme}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      # "validate" : Flyway gère le schéma – Hibernate vérifie juste que tout correspond
+      # :TODO change to validate
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+server:
+  port: 8080
+
+# Origine du frontend (CORS + WebSocket SockJS). Docker Compose : surcharger avec
+# http://localhost:${WEB_PORT}
+app:
+  frontend-origin: ${FRONTEND_ORIGIN:http://localhost:4200}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+# Valeurs par défaut pour le développement local – surchargées par les variables d'env en prod
+jwt:
+  secret: ${JWT_SECRET:dev_secret_please_change_in_production}
+  expiration-ms: ${JWT_EXPIRATION_MS:86400000}
