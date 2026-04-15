@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @OpenAPIDefinition(
-    info = @Info(title = "MDD API", version = "1.0")
+    info = @Info(title = "Yor Car Your Way API", version = "1.0")
 )
 @SecurityScheme(
         name = "bearerAuth",

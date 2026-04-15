@@ -26,31 +26,4 @@ public class UserService {
                 .orElseThrow(UserNotFoundException::new);
         return ProfileResponse.from(user);
     }
-
-    @Transactional
-    public ProfileResponse updateUserProfile(ProfileUpdateRequest profileUpdateRequest, UUID userId){
-        User user = userRepository.findById(userId)
-                .orElseThrow(UserNotFoundException::new);
-
-        String email = profileUpdateRequest.email().trim();
-
-        if(userRepository.existsByEmailIgnoreCaseAndIdNot(email, userId)) {
-            throw new IllegalArgumentException("Email already taken");
-        }
-
-        String username = profileUpdateRequest.username().trim();
-
-        if(userRepository.existsByUsernameIgnoreCaseAndIdNot(username, userId)) {
-            throw new IllegalArgumentException("Username already taken");
-        }
-
-        user.setEmail(email);
-        user.setUsername(username);
-
-        if(profileUpdateRequest.password() != null && !profileUpdateRequest.password().isEmpty()) {
-            user.setPassword(passwordEncoder.encode(profileUpdateRequest.password().trim()));
-        }
-        userRepository.save(user);
-        return getUserProfile(userId);
-    }
 }

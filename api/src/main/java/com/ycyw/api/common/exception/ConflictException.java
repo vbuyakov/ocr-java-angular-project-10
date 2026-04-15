@@ -9,10 +9,6 @@ public class ConflictException extends RuntimeException{
         this.messageKeys = messageKeys;
     }
 
-    public ConflictException(String messageKey) {
-        this.messageKeys = List.of(messageKey);
-    }
-
     public List<String> getMessageKeys() {
         return messageKeys;
     }

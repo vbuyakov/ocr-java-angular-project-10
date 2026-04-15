@@ -21,9 +21,4 @@ public class UserController {
     public ProfileResponse profile(@AuthenticationPrincipal User user){
         return userService.getUserProfile(user.getId());
     }
-
-    @PutMapping("/profile")
-    public ProfileResponse updateProfile(@Valid @RequestBody ProfileUpdateRequest profile, @AuthenticationPrincipal User user){
-        return userService.updateUserProfile(profile, user.getId());
-    }
 }

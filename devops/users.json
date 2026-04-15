@@ -1,0 +1,50 @@
+[
+  {
+    "username": "alice_johnson",
+    "email": "alice@example.com",
+    "password": "Al!ce2024#",
+    "role": "CLIENT"
+  },
+  {
+    "username": "bob_smith",
+    "email": "bob@example.com",
+    "password": "B0b$mith!7",
+    "role": "CLIENT"
+  },
+  {
+    "username": "carol_white",
+    "email": "carol@example.com",
+    "password": "C@rol#2024",
+    "role": "CLIENT"
+  },
+  {
+    "username": "david_brown",
+    "email": "david@example.com",
+    "password": "D@v1dBr0wn!",
+    "role": "CLIENT"
+  },
+  {
+    "username": "emma_davis",
+    "email": "emma@example.com",
+    "password": "Emma$D4vis!",
+    "role": "CLIENT"
+  },
+  {
+    "username": "frank_miller",
+    "email": "frank@example.com",
+    "password": "Fr@nkM1ll!",
+    "role": "CLIENT"
+  },
+  {
+    "username": "grace_support",
+    "email": "grace@support.com",
+    "password": "Gr@ce$upp0rt!",
+    "role": "AGENT"
+  },
+  {
+    "username": "henry_support",
+    "email": "henry@support.com",
+    "password": "H3nry#Supp0rt!",
+    "role": "AGENT"
+  }
+]
