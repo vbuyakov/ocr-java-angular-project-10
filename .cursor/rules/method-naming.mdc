@@ -1,0 +1,25 @@
+---
+description: Method naming — validation vs load vs convert; explicit conversion names
+alwaysApply: true
+---
+
+# Method naming (Java / backend)
+
+## Validation (no domain return value)
+
+Use **validate***, **assert***, **check***, or **ensure*** for methods whose job is to enforce rules and fail with an exception. Prefer **`void`** or a boolean / result type — not returning a loaded entity.
+
+Do **not** use **`require*`** for methods whose primary job is to **return** a domain row or DTO. Reserve **`require*`** for validation-style guards (e.g. `Objects.requireNonNull`) or **`void`** preconditions, not for “load and return.”
+
+## Loading data (return entity or throw)
+
+Use **`load*`**, **`get*`**, or **`find*...OrThrow`** when the method resolves data and returns it, or throws if it cannot. Include scope in the name when it matters (e.g. `loadMessageFromChat(chatId, messageId)`).
+
+## Mapping / DTO conversion
+
+Use **`convert*`** or **`map*`** with **explicit source → target** in the name so readers know input and output without opening the method:
+
+- Prefer `convertPageToChatListResponse(Page<Chat>)` over vague `toChatListResponse(page)`.
+- Same pattern for other layer crossings: `convertEntityToResponse`, `mapRowToDto`, etc.
+
+Keep names **verb + source type + target shape** when the method is mostly mapping.

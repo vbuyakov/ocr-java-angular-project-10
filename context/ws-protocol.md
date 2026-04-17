@@ -1,76 +1,92 @@
-I want to create support chat between customer (Customer User - CU) and agent (Agent User - AU) using websocket (WS) Algorithm is folowing:
+# Support chat — base flow (CU ↔ AU) and WebSocket usage
 
-1. Customer (CU) login eg. `cust1` - CU has support page, with two children - `chat` and `archived requests`.
-2. CU goes to support/chat page. Check is opened Chat exist - if yes connect to current (so one CU has only one active chat)
-    - 2.1.  Else  propose CU create new - CU create the chat with initial message. 
+This document describes the **product flow** for the support chat UI. The **normative API** (REST paths, STOMP destinations, payloads) is in [`support_chat_web_socket_api_spec_clean.md`](support_chat_web_socket_api_spec_clean.md) and the short reference [`support_chat_api_endpoints.md`](support_chat_api_endpoints.md).
 
-  Here we init WS session  
+---
 
+## Customer (CU)
 
-3. Agent User (AU) login eg. `agent1`
-    Need to connect to WS to get chats updates. So need to be able see notification when new chat from CU is arrived, or new message from the chat where current AU connected (if it not on the chat page)
+1. CU logs in (e.g. `cust1`). Support area has two main areas: **live chat** and **archived requests**.
 
-5. Agent User (AU) have `support` page with list of active chats attached to him, 
-list of `chat requests` w/o any AU connected. Separated page (tab) for the active chats attached to other agents AUs. Separated page for archived chats.
+2. CU opens the **support/chat** page.
 
-6. When CU create new chat - list of `chat requests` in  Agent User (AU) 
-page automatically update by WS (for example `agent1` will see `cust1` request)
+3. **REST — resolve or create the active chat (one non-closed chat per CU):**
+   - Call **`GET /api/chat/active`**.
+   - If **200**: use returned `chatId` / `status` (existing active chat).
+   - If **404**: there is no active chat — UI prompts for the **first message**, then CU calls **`POST /api/chat/active`** with body `{ "initialMessage": "…" }`. That creates the chat **and** persists the first message. If **409**, an active chat already exists (refresh state with GET).
 
-7. AU click on chat and attach(connect) to it (now chat has two user and two session AU and CU) - open `chat` page (can be in separated Browser Tab or Window).  `My chats list`, `Chat requests` will automativally update by WS. To other AU users . CU also gets update of chat status via WS (in CU UI add note - "agent1 is connected *`<datetime>`*")
+4. **WebSocket:** After CU has a `chatId` (from step 3), open the STOMP session (e.g. connect to `/ws` with JWT, then subscribe to `/topic/chat/{chatId}` and user queues as per spec). *Exact order vs REST may vary (connect WS early after login vs only after `chatId` exists); the thread subscription must target the current `chatId`.*
 
+5. Optionally load history with **`GET /api/chat/{chatId}/messages`** (reload, scroll).
 
-8. CU or AU start typing. Notify via WS - show in UI messages like - `agent1 typing...` in CU UI  or `cust1 typing...` in AU UI. Note: in UI need debounce, don't need to send notification on each keypressed.
+---
 
-9. CU or AU send message. Notify via WS - show new message in UI. In case of send error show error alert (Error also via WS)
+## Agent (AU)
 
-10. CU or AU change message. In UI there is button (on hover and on longclick on mobile) to edit message (pensil icon). In this case message shon in edit field and shown two bottons "Cancel", "Update". If "Cancel" back send UI to initial state - empty textarea + send button. If click "Update" - send update message request with message ID and notify via WS another user. In the chat in the bottom of changed  message show small muted text "Edited *`<datetime>`*". Note only creater of message able to edit message.
+6. AU logs in (e.g. `agent1`).
 
-11. CU or AU delete message. On db we don't delete message just remove content and mark as deleted. Notify via WS - message deleted and make it empty in chat and show small muted text "Deleted *`<datetime>`*" Note only creater of message able to delete message.
+7. **WebSocket:** AU connects to `/ws` so they receive **chat list updates** (`/user/queue/chats`, etc.) and can receive events for chats they follow — including when not on the chat detail page.
 
-12. CU or AU recieve message in UI.  Notify another side and mark message as READ - in DB and in UI (add icon `V`)
+8. **REST:** AU hydrates inbox tabs with **`GET /api/agent/chats?bucket=…`** (e.g. `NEW_REQUESTS`, `MY_ACTIVE`, `OTHERS_ACTIVE`, `ARCHIVED`) plus pagination.
 
-13. User CU or AU disconnet for any reason, need to notify another user via WS. Show in chat history "Cust1 leave chat *`<datetime>`*" or "Agent1 leave chat  *`<datetime>`*"
+9. AU **support** UI: separate views for **my active chats**, **chat requests** (no agent assigned yet), **other agents’ active chats**, and **archived**.
 
-14. User CU or AU reconnect to chat, Notify via WS and show message in chat "Cust1 is connected *`<datetime>`*" or  Aagent1 is connected *`<datetime>`*"
+10. When a CU **creates** a new chat (POST with initial message), **chat request** lists for agents update (via **`CHAT_LIST_UPDATED`** / refresh — see canonical spec).
 
+11. AU **opens** a request and **attaches** (STOMP **`/app/chat.attach`**) — chat becomes **ACTIVE** with `agent_id` set; both sides can use the thread. **My chats** / **chat requests** / **other agents’** lists update for relevant AUs; CU sees agent connection via WS (e.g. presence / status events per spec).
 
-15.  Chat was closed by CU or AU - move chat to archive - notify by WS both participants and other agents to move chat from the active list to archive in UI.
+12. **Typing:** CU or AU sends debounced **`/app/chat.typing`**; the other side shows “typing…” in UI (debounce on client; do not send on every keypress).
 
+13. **Send / edit / delete message:** Commands under `/app/chat.send`, `…/edit`, `…/delete`; events on `/topic/chat/{chatId}`. On failure, show error (including **`/user/queue/errors`** where applicable). **Edit/delete** only by **message creator**; edited/deleted copy as in spec.
 
+14. **Presence:** On disconnect / reconnect, propagate **USER_LEFT** / **USER_JOINED** (or spec equivalents) so UI can show “… left” / “… connected” with timestamp.
 
-## Database sturcture
+15. **Close chat:** CU or AU closes via **`/app/chat.close`**; **CHAT_STATUS** `CLOSED`; move to **archive** in UI for both participants and refresh agent lists for other agents.
+
+---
+
+## Alignment notes (avoid drift)
+
+| Topic | This doc (narrative) | Canonical / implementation |
+|--------|----------------------|----------------------------|
+| Chat lifecycle | Older drafts mentioned ATTACHED/DETACHED/ARCHIVED | **`Chat.status`:** `NEW` \| `ACTIVE` \| `CLOSED` (see spec). “Archived” in UI = **CLOSED** chats. |
+| User model | “type CLIENT \| AGENT” | JPA uses **`User.role`** (`CLIENT` / `AGENT`). |
+| Messages | Draft had `senderType`, message status NEW/READ/CHANGED | Implementation: **`sender_id`** FK; **`ChatMessageStatus`** `ACTIVE` \| `DELETED`; **edited** flag. |
+
+---
+
+## Database sketch (conceptual — see JPA entities / Flyway for truth)
+
 ```
 User
----
-id uuid,
-username , 
-email, 
-type [CLIENT | AGENT]
+----
+id uuid PK
+username, email, password
+role: CLIENT | AGENT   -- stored as string enum
 ...
-```
 
-```
 Chat
+----
+id uuid PK
+client_id  → User (required)
+agent_id   → User (nullable)
+status     NEW | ACTIVE | CLOSED
+created_at, updated_at
+...
+
+ChatMessage
+-------------
+id uuid PK
+chat_id    → Chat
+sender_id  → User
+content    varchar(1000)
+status     ACTIVE | DELETED
+created_at, updated_at
+edited     boolean
+```
+
 ---
-id uuid,
-ClientId (FK User.id), 
-AgentId (FK User.id, NULLABLE) , 
-Staus (NEW|ATTACHED|DETACCHED|ARCHIVED)
-CreatedTime,
-UpdatedTime
-.... 
-```
 
-```
-ChatMessages
----
-ChatId (FK chat.id),
-FromUserId (FK User.id),
-senderType ([CLENT | AGENT]  - To simplify determin derection of message),
-Message varchar(1000),
-Status [NEW | READ | CHANGED | DELETED ]
+## Typos fixed (historical)
 
-CreateTime, 
-UpdatedTime,
-
-```
+Earlier versions had “Sturcture”, “recieve”, “Aagent1”, “automativally”; the flow above supersedes that wording.

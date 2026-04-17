@@ -4,28 +4,28 @@ overview: Step-by-step **backend** plan for the support chat feature under `com.
 todos:
   - id: phase-0-authorities
     content: "Phase 0: Fix User.getAuthorities() for ROLE_CLIENT / ROLE_AGENT; verify JwtAuthenticationFilter principal"
-    status: pending
+    status: completed
   - id: phase-1-db-repo
     content: "Phase 1: Flyway migrations + ChatRepository + ChatMessageRepository (bucket + pagination queries)"
-    status: pending
+    status: completed
   - id: phase-2-access
     content: "Phase 2: ChatAccessService + document agent-read-before-attach rule"
-    status: pending
+    status: completed
   - id: phase-3-rest
     content: "Phase 3: REST DTOs + ChatRestController + AgentChatRestController (incremental endpoints)"
-    status: pending
+    status: completed
   - id: phase-4-ws-infra
     content: "Phase 4: WebSocket/STOMP config + JWT handshake + SUBSCRIBE interceptor"
-    status: pending
+    status: completed
   - id: phase-5-stomp
     content: "Phase 5: ChatStompController for all /app/chat.* commands"
-    status: pending
+    status: completed
   - id: phase-6-broadcast
     content: "Phase 6: SimpMessagingTemplate events to topic and user queues"
-    status: pending
+    status: completed
   - id: phase-7-unit-tests
     content: "Phase 7: Unit tests + slice tests (Mockito; @WebMvcTest, @DataJpaTest, WS mocked)"
-    status: pending
+    status: completed
   - id: phase-8-e2e-tests
     content: "Phase 8: E2E tests (full Spring context, HTTP API, DB, STOMP/WebSocket flows)"
     status: pending
@@ -114,9 +114,16 @@ flowchart LR
 
 **What:** Single place for:
 
-- `assertParticipant(chatId, userId)` — load chat, allow if user is **client** or **agent** on that chat.
-- `assertClient(chatId, userId)` for CU-only endpoints (`POST /active`, `GET /archived`).
-- `assertAgent(...)` for agent-only listing; bucket logic may live in `ChatQueryService` but **authorization** (e.g. only agents call `/api/agent/chats`) stays on controller via `@PreAuthorize` + service checks where needed.
+- `validateParticipant(chatId, userId)` — load chat, allow if user is **client** or **assigned agent** on that chat.
+- `validateClient(chatId, userId)` — must be the chat **customer** (`client_id`).
+- `validateAgent(chatId, userId)` — must be the **assigned agent** (`agent_id`); fails while `agent_id` is null (unassigned-chat / attach flows use `ChatService` + role, not this).
+
+**TODO — recheck after Phase 3–5 (also in `ChatAccessService` Javadoc + `// TODO` in code):**
+
+- Revisit whether `validateParticipant` stays or call sites use `isParticipant` + throw only.
+- Revisit `validateClient` / `validateAgent` usage per endpoint; simplify if redundant.
+- Wire `ChatService` attach / unassigned-chat rules; confirm no gap vs `ChatAccessService`.
+- Re-run auth matrix tests (REST + STOMP SUBSCRIBE).
 
 **Review checkpoint:** Walk through matrix: CLIENT accessing another client’s chat → **deny**; AGENT accessing unassigned chat for **read** (messages) only if product allows — align with spec (“only participants”); typically **attach** before agent is participant — **decide explicitly:** either allow agents to read **NEW_REQUESTS** only via list + attach flow, or allow message read after attach only. Document the chosen rule in code comments (one short paragraph).
 
@@ -133,6 +140,8 @@ Implement in **small PR-sized chunks**, each reviewable alone:
 5. **`GET /api/chat/{chatId}/messages`** — participant; `limit` / `before` / `after`; ACTIVE or CLOSED.
 
 **Review checkpoint:** For each endpoint: Swagger annotation, controller **only** delegates, service contains business rules, `ChatAccessService` used for `{chatId}` paths.
+
+**TODO:** Revisit whether manual [`ChatMapper`](api/src/main/java/com/ycyw/api/tchat/dto/ChatMapper.java) is enough or **MapStruct** should be added when DTO/mapping volume grows.
 
 ---
 

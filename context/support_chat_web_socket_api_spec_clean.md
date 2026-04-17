@@ -40,11 +40,11 @@ List endpoints return items with a common summary shape (exact fields may includ
 }
 ```
 
-## Get or Create Active Chat (CU)
+## Get Active Chat (CU)
 
-POST `/api/chat/active`
+GET `/api/chat/active`
 
-Returns the CU’s single non-closed chat if it exists, or creates/returns policy as implemented (see rules: one active chat per CU).
+Returns the CU’s single non-closed chat. **404** if none (UI then collects an initial message and calls POST).
 
 Response:
 
@@ -54,6 +54,22 @@ Response:
   "status": "NEW | ACTIVE | CLOSED"
 }
 ```
+
+## Create Active Chat with Initial Message (CU)
+
+POST `/api/chat/active`
+
+Creates a new non-closed chat and **persists the first message** (required). One active chat per CU — **409 Conflict** if a non-closed chat already exists.
+
+Request body:
+
+```
+{
+  "initialMessage": "string"
+}
+```
+
+Response: same shape as GET (`chatId`, `status`).
 
 ## List Archived Chats (CU)
 
@@ -126,6 +142,7 @@ Response:
       "id": "uuid",
       "chatId": "uuid",
       "senderId": "uuid",
+      "senderUsername": "string",
       "content": "string",
       "status": "ACTIVE | DELETED",
       "createdAt": "datetime",
@@ -227,7 +244,22 @@ Destination: `/topic/chat/{chatId}`
 ## Message Created
 ```
 
-{ "type": "MESSAGE\_CREATED", "chatId": "uuid", "clientMessageId": "uuid", "message": { "id": "uuid", "senderId": "uuid", "content": "string", "status": "ACTIVE", "createdAt": "datetime", "updatedAt": "datetime" } }
+{
+  "type": "MESSAGE_CREATED",
+  "chatId": "uuid",
+  "clientMessageId": "uuid",
+  "message": {
+    "id": "uuid",
+    "chatId": "uuid",
+    "senderId": "uuid",
+    "senderUsername": "string",
+    "content": "string",
+    "status": "ACTIVE | DELETED",
+    "createdAt": "datetime",
+    "updatedAt": "datetime",
+    "edited": boolean
+  }
+}
 
 ```
 
@@ -243,15 +275,6 @@ Destination: `/topic/chat/{chatId}`
 
 { "type": "MESSAGE\_DELETED", "chatId": "uuid", "messageId": "uuid", "updatedAt": "datetime" }
 
-```
-
-
-{
-  "type": "MESSAGE_READ",
-  "chatId": "uuid",
-  "messageId": "uuid",
-  "readAt": "datetime"
-}
 ```
 
 ## Chat Status Changed
@@ -371,14 +394,13 @@ edited: boolean
 
 1. CU logs in and opens `support/chat`.
 2. Frontend connects to `/ws` with authenticated user context.
-3. Frontend calls `POST /api/chat/active` and, for archive sidebar, `GET /api/chat/archived`.
-4. If active chat exists, frontend uses returned `chatId`.
-5. If no active chat exists, UI proposes creating a new chat.
-6. CU creates new chat with initial message.
-7. Frontend calls `GET /api/chat/{chatId}/messages` to load the thread (reload or open archived chat uses the same endpoint).
-8. Frontend subscribes to `/topic/chat/{chatId}`.
-9. CU can send messages, edit own messages, delete own messages,
-10. CU receives real-time events:
+3. Frontend calls `GET /api/chat/active` and, for archive sidebar, `GET /api/chat/archived`.
+4. If active chat exists (200), frontend uses returned `chatId`.
+5. If no active chat (404), UI prompts for an initial message and CU calls `POST /api/chat/active` with `{ "initialMessage": "…" }` (409 if a non-closed chat already exists).
+6. Frontend calls `GET /api/chat/{chatId}/messages` to load the thread (reload or open archived chat uses the same endpoint).
+7. Frontend subscribes to `/topic/chat/{chatId}`.
+8. CU can send messages, edit own messages, delete own messages,
+9. CU receives real-time events:
    - new message
    - message updated
    - message deleted
@@ -386,10 +408,10 @@ edited: boolean
    - agent attached
    - agent detached
    - chat closed
-11. When AU attaches, CU UI shows that agent is connected with timestamp.
-12. When AU types, CU UI shows typing indicator.
-13. When AU disconnects or reconnects, CU UI shows presence event with timestamp.
-14. When chat is closed, UI moves chat from active chat to archive.
+10. When AU attaches, CU UI shows that agent is connected with timestamp.
+11. When AU types, CU UI shows typing indicator.
+12. When AU disconnects or reconnects, CU UI shows presence event with timestamp.
+13. When chat is closed, UI moves chat from active chat to archive.
 
 ## AU Flow
 

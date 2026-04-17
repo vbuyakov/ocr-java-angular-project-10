@@ -1,0 +1,11 @@
+# In-memory DB for tests (no Docker Postgres required). Schema from JPA ddl-auto, Flyway off.
+spring:
+  datasource:
+    url: jdbc:h2:mem:ycyw_test;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    enabled: false

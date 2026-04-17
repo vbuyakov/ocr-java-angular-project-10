@@ -10,7 +10,8 @@ Companion to `support_chat_web_socket_api_spec_clean.md` (full specification).
 
 | Method | Path | Who | Purpose |
 |--------|------|-----|---------|
-| POST | `/api/chat/active` | CU | Get or create active (non-closed) chat |
+| GET | `/api/chat/active` | CU | Current non-closed chat, or **404** if none |
+| POST | `/api/chat/active` | CU | Body `{ "initialMessage": "…" }` — create chat + first message; **409** if active chat exists |
 | GET | `/api/chat/archived` | CU | List archived (closed) chats — query: `page`/`size` or `cursor`/`limit` |
 | GET | `/api/agent/chats` | AU | List chats — **required** query `bucket`: `NEW_REQUESTS` \| `MY_ACTIVE` \| `OTHERS_ACTIVE` \| `ARCHIVED`; pagination as above |
 | GET | `/api/chat/{chatId}/messages` | Participant | Load thread (reload, archived chat, infinite scroll) — query: `limit`, `before`, `after` |
@@ -56,7 +57,6 @@ Companion to `support_chat_web_socket_api_spec_clean.md` (full specification).
 | `MESSAGE_CREATED` | Includes `message` object |
 | `MESSAGE_UPDATED` | |
 | `MESSAGE_DELETED` | |
-| `MESSAGE_READ` | |
 | `CHAT_STATUS` | `status`: NEW \| ACTIVE \| CLOSED |
 | `USER_JOINED` / `USER_LEFT` | Presence |
 | `TYPING` | |

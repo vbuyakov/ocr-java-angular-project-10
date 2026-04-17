@@ -106,7 +106,9 @@ public class SecurityConfig {
                                 .accessDeniedHandler(accessDeniedHandler())
                 )
                 .authorizeHttpRequests(authorize ->
-                        authorize.anyRequest().authenticated()
+                        authorize
+                                .requestMatchers("/ws/**").permitAll()
+                                .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         ;

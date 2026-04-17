@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
@@ -52,9 +53,16 @@ public class User implements UserDetails {
 
     private LocalDateTime updatedAt;
 
+    /**
+     * Spring Security {@code hasRole("CLIENT")} / {@code hasRole("AGENT")} expect authorities
+     * {@code ROLE_CLIENT} and {@code ROLE_AGENT}.
+     */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        if (role == null) {
+            return List.of();
+        }
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
     // Getters and Setters
