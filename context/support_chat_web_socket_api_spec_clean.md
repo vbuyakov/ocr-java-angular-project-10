@@ -23,9 +23,28 @@
 
 # 2. REST API
 
+REST endpoints hydrate the UI on **cold load**, **full page reload**, and **reconnect**; WebSocket events keep lists and threads live afterward.
+
+## Chat summary (shared shape)
+
+List endpoints return items with a common summary shape (exact fields may include optional last-message preview):
+
+```
+{
+  "chatId": "uuid",
+  "status": "NEW | ACTIVE | CLOSED",
+  "clientId": "uuid",
+  "agentId": "uuid | null",
+  "createdAt": "datetime",
+  "updatedAt": "datetime"
+}
+```
+
 ## Get or Create Active Chat (CU)
 
 POST `/api/chat/active`
+
+Returns the CU’s single non-closed chat if it exists, or creates/returns policy as implemented (see rules: one active chat per CU).
 
 Response:
 
@@ -36,9 +55,89 @@ Response:
 }
 ```
 
+## List Archived Chats (CU)
+
+GET `/api/chat/archived`
+
+Returns **closed** chats for the authenticated CU (newest first).
+
+Query parameters (optional):
+
+- `page`, `size` — offset pagination; or
+- `cursor`, `limit` — cursor pagination if preferred
+
+Response:
+
+```
+{
+  "items": [ { /* chat summary */ } ],
+  "hasMore": boolean,
+  "nextCursor": "string | null"
+}
+```
+
+(Adjust `page`/`size` vs `cursor` to one style in implementation; document the chosen pattern in OpenAPI.)
+
+## List Chats (AU)
+
+GET `/api/agent/chats`
+
+Returns chats visible to agents, filtered by **bucket** (exactly one per request).
+
+Query parameters:
+
+- `bucket` (required):
+  - `NEW_REQUESTS` — `status = NEW` and `agentId` is null (unassigned queue)
+  - `MY_ACTIVE` — `status = ACTIVE` and `agentId` = current AU
+  - `OTHERS_ACTIVE` — `status = ACTIVE` and `agentId` is another non-null agent
+  - `ARCHIVED` — `status = CLOSED`
+- Pagination: same as CU archived (`page`/`size` or `cursor`/`limit`)
+
+Response:
+
+```
+{
+  "items": [ { /* chat summary */ } ],
+  "hasMore": boolean,
+  "nextCursor": "string | null"
+}
+```
+
 ## Get Chat Messages
 
 GET `/api/chat/{chatId}/messages`
+
+Loads full message history for a chat the caller may access: **initial open**, **page reload**, **opening an archived chat**, and **infinite scroll** (older messages).
+
+Authorization: **participants only**; permitted when chat is **ACTIVE** or **CLOSED**.
+
+Query parameters (optional):
+
+- `limit` — default (e.g. 50), cap (e.g. 200)
+- `before` — message id: return messages **strictly older** than this (load older / scroll up)
+- `after` — message id: return messages **strictly newer** than this (catch-up after reconnect)
+
+Response:
+
+```
+{
+  "messages": [
+    {
+      "id": "uuid",
+      "chatId": "uuid",
+      "senderId": "uuid",
+      "content": "string",
+      "status": "ACTIVE | DELETED",
+      "createdAt": "datetime",
+      "updatedAt": "datetime",
+      "edited": boolean
+    }
+  ],
+  "hasMore": boolean
+}
+```
+
+Messages are ordered by `createdAt` ascending within the returned window.
 
 ---
 
@@ -79,40 +178,44 @@ Destination: `/app/chat.delete`
 }
 ```
 
-{ "chatId": "uuid", "messageId": "uuid" }
-
-```
-
 ## Attach Agent
+
 Destination: `/app/chat.attach`
+
 ```
-
-{ "chatId": "uuid" }
-
+{
+  "chatId": "uuid"
+}
 ```
 
 ## Detach User
+
 Destination: `/app/chat.detach`
+
 ```
-
-{ "chatId": "uuid" }
-
+{
+  "chatId": "uuid"
+}
 ```
 
 ## Close Chat
+
 Destination: `/app/chat.close`
+
 ```
-
-{ "chatId": "uuid" }
-
+{
+  "chatId": "uuid"
+}
 ```
 
 ## Typing Indicator
+
 Destination: `/app/chat.typing`
+
 ```
-
-{ "chatId": "uuid" }
-
+{
+  "chatId": "uuid"
+}
 ```
 
 ---
@@ -258,6 +361,7 @@ edited: boolean
 - Messages are ordered by createdAt
 - Server time is source of truth
 - All actions: command → DB → event
+- After reload or reconnect: **REST** (`GET` lists + `GET` messages) restores state; **WS** subscriptions stay authoritative for live updates
 
 ---
 
@@ -267,48 +371,49 @@ edited: boolean
 
 1. CU logs in and opens `support/chat`.
 2. Frontend connects to `/ws` with authenticated user context.
-3. Frontend calls `POST /api/chat/active`.
+3. Frontend calls `POST /api/chat/active` and, for archive sidebar, `GET /api/chat/archived`.
 4. If active chat exists, frontend uses returned `chatId`.
 5. If no active chat exists, UI proposes creating a new chat.
 6. CU creates new chat with initial message.
-7. Frontend subscribes to `/topic/chat/{chatId}`.
-8. CU can send messages, edit own messages, delete own messages,
-9. CU receives real-time events:
+7. Frontend calls `GET /api/chat/{chatId}/messages` to load the thread (reload or open archived chat uses the same endpoint).
+8. Frontend subscribes to `/topic/chat/{chatId}`.
+9. CU can send messages, edit own messages, delete own messages,
+10. CU receives real-time events:
    - new message
    - message updated
    - message deleted
-   -
    - typing
    - agent attached
    - agent detached
    - chat closed
-10. When AU attaches, CU UI shows that agent is connected with timestamp.
-11. When AU types, CU UI shows typing indicator.
-12. When AU disconnects or reconnects, CU UI shows presence event with timestamp.
-13. When chat is closed, UI moves chat from active chat to archive.
+11. When AU attaches, CU UI shows that agent is connected with timestamp.
+12. When AU types, CU UI shows typing indicator.
+13. When AU disconnects or reconnects, CU UI shows presence event with timestamp.
+14. When chat is closed, UI moves chat from active chat to archive.
 
 ## AU Flow
 
 1. AU logs in and opens support area.
 2. Frontend connects to `/ws` with authenticated user context.
-3. AU subscribes to `/user/queue/chats`.
-4. AU UI shows:
+3. Frontend calls `GET /api/agent/chats` once per visible bucket (`NEW_REQUESTS`, `MY_ACTIVE`, `OTHERS_ACTIVE`, `ARCHIVED`) to hydrate after load or reload.
+4. AU subscribes to `/user/queue/chats`.
+5. AU UI shows:
    - my active chats
    - chat requests without assigned AU
    - active chats assigned to other AUs
    - archived chats
-5. When CU creates a new chat, all relevant AU UIs receive chat list update event.
-6. AU sees new chat request in real time.
-7. AU opens selected chat and sends `/app/chat.attach`.
-8. Frontend subscribes to `/topic/chat/{chatId}`.
-9. After attach:
+6. When CU creates a new chat, all relevant AU UIs receive chat list update event.
+7. AU sees new chat request in real time.
+8. AU opens selected chat, calls `GET /api/chat/{chatId}/messages`, then sends `/app/chat.attach`.
+9. Frontend subscribes to `/topic/chat/{chatId}`.
+10. After attach:
    - selected AU sees chat messages and status updates
    - CU receives agent attached event
    - other AU users receive chat list update event
-10. AU can send messages, edit own messages, delete own messages,
-11. If AU is not currently on chat page, AU can still receive personal chat list updates through `/user/queue/chats`.
-12. When CU disconnects or reconnects, AU UI shows presence event with timestamp.
-13. When chat is closed, UI removes chat from active/request lists and moves it to archive.
+11. AU can send messages, edit own messages, delete own messages,
+12. If AU is not currently on chat page, AU can still receive personal chat list updates through `/user/queue/chats`.
+13. When CU disconnects or reconnects, AU UI shows presence event with timestamp.
+14. When chat is closed, UI removes chat from active/request lists and moves it to archive.
 
 ## Message Behavior
 
@@ -355,6 +460,6 @@ edited: boolean
 # 10. Constraints
 
 - Typing events must be debounced
-- WS reconnect must restore subscriptions
+- WS reconnect must restore subscriptions; after reconnect, optionally **refetch** `GET /api/agent/chats` / `GET /api/chat/archived` and `GET /api/chat/{chatId}/messages?after=…` to fill gaps
 - No business logic without persistence
 
