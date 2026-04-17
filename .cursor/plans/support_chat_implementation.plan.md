@@ -1,6 +1,6 @@
 ---
 name: Support chat implementation
-overview: Step-by-step backend plan for the support chat feature under `com.ycyw.api.tchat`, aligned with [context/support_chat_api_endpoints.md](context/support_chat_api_endpoints.md) and the full spec. Each phase ends with explicit review checkpoints so you can approve every chunk before moving on. Canonical copy of this plan lives in the repo at [.cursor/plans/support_chat_implementation.plan.md](.cursor/plans/support_chat_implementation.plan.md).
+overview: Step-by-step **backend** plan for the support chat feature under `com.ycyw.api.tchat` (Angular UI is a **separate plan**). Aligned with [context/support_chat_api_endpoints.md](context/support_chat_api_endpoints.md) and the full spec. Each phase ends with explicit review checkpoints. Canonical copy lives at [.cursor/plans/support_chat_implementation.plan.md](.cursor/plans/support_chat_implementation.plan.md).
 todos:
   - id: phase-0-authorities
     content: "Phase 0: Fix User.getAuthorities() for ROLE_CLIENT / ROLE_AGENT; verify JwtAuthenticationFilter principal"
@@ -23,8 +23,11 @@ todos:
   - id: phase-6-broadcast
     content: "Phase 6: SimpMessagingTemplate events to topic and user queues"
     status: pending
-  - id: phase-7-tests
-    content: "Phase 7: Unit/WebMvc/WebSocket tests for auth and buckets"
+  - id: phase-7-unit-tests
+    content: "Phase 7: Unit tests + slice tests (Mockito; @WebMvcTest, @DataJpaTest, WS mocked)"
+    status: pending
+  - id: phase-8-e2e-tests
+    content: "Phase 8: E2E tests (full Spring context, HTTP API, DB, STOMP/WebSocket flows)"
     status: pending
   - id: save-plan-md
     content: "Optional: copy plan to context/support_chat_implementation_plan.md if you want a second copy under context/"
@@ -34,11 +37,13 @@ isProject: true
 
 # Support chat — step-by-step implementation plan
 
-**Goal:** Implement REST + STOMP WebSocket for support chat with **role** (CLIENT vs AGENT) and **participant/owner** checks, organized under [`api/src/main/java/com/ycyw/api/tchat/`](api/src/main/java/com/ycyw/api/tchat/).
+**Goal:** Implement REST + STOMP WebSocket for support chat with **role** (CLIENT vs AGENT) and **participant/owner** checks, organized under [`api/src/main/java/com/ycyw/api/tchat/`](api/src/main/java/com/ycyw/api/tchat/). **Frontend (Angular)** is out of scope here — tracked in a **separate plan**.
 
 **Spec references:** [context/support_chat_web_socket_api_spec_clean.md](context/support_chat_web_socket_api_spec_clean.md), [context/support_chat_api_endpoints.md](context/support_chat_api_endpoints.md).
 
 **Deliverable document:** This file — **[`.cursor/plans/support_chat_implementation.plan.md`](.cursor/plans/support_chat_implementation.plan.md)** — is the project-local checklist (version with git if `.cursor/` is tracked).
+
+**Testing — mocking:** Use **Mockito** for unit and slice tests (`@Mock`, `@InjectMocks`, `when` / `verify`, `@ExtendWith(MockitoExtension.class)` with JUnit). `@DataJpaTest` / `@SpringBootTest` E2E use real beans or Testcontainers — not Mockito for the persistence layer unless testing a thin wrapper.
 
 ---
 
@@ -160,21 +165,29 @@ Implement in **small PR-sized chunks**, each reviewable alone:
 
 ---
 
-## Phase 7 — Tests and hardening
+## Phase 7 — Unit tests and slice tests
 
 **What:**
 
-- Unit tests: `ChatAccessService`, bucket repository queries.
-- `@WebMvcTest` for REST controllers with mocked security.
-- Optional: `@SpringBootTest` WebSocket test ( heavier).
+- **Mocking library:** **Mockito** for all collaborators (repositories, `SimpMessagingTemplate`, `ChatAccessService`, etc.) in true unit tests and in controller/handler tests that inject mocks.
+- **Unit tests (pure / Mockito):** `ChatAccessService`, mappers, STOMP command handlers’ permission branches with `@Mock` `ChatRepository` / peers; `verify` interactions where it matters.
+- **`@DataJpaTest`:** Repository methods — bucket queries, message pagination (`before` / `after`), indexes — **real** JPA + DB (no Mockito for the repository under test).
+- **`@WebMvcTest`:** REST controllers — `@MockBean` services or Mockito mocks; status codes, JSON shape, `@PreAuthorize` with `@WithMockUser` / custom security context for CLIENT vs AGENT.
+- **WebSocket slice:** `ChannelInterceptor` SUBSCRIBE denial, or `@MessageMapping` unit tests with Mockito-mocked `SimpMessagingTemplate` / services where practical.
 
-**Review checkpoint:** List of scenarios: forbidden cross-tenant chat, agent bucket isolation, closed chat message read.
+**Review checkpoint:** Coverage matrix: forbidden cross-tenant chat, agent bucket isolation, closed-chat message read, wrong role on `/api/agent/chats` vs `/api/chat/*`.
 
 ---
 
-## Phase 8 (optional) — Angular (`/web`)
+## Phase 8 — E2E tests (backend)
 
-Wire `npm` STOMP client, JWT on connect, subscribe to topics — only after backend phases 3–6 are stable.
+**What:** End-to-end tests that boot **Spring Boot** with a real or containerized **PostgreSQL** (recommended: **Testcontainers** if the project adopts it; otherwise embedded DB + Flyway test migrations — align with how [`api`](api) is configured).
+
+- **`@SpringBootTest` + `WebEnvironment.RANDOM_PORT`:** `TestRestTemplate` or `RestClient` — full HTTP: register/login → JWT → `POST /api/chat/active`, `GET` lists, `GET` messages, 403/401 paths.
+- **STOMP E2E:** `WebSocketStompClient` (or similar) against `ws://localhost:{port}/ws` — CONNECT with JWT, SUBSCRIBE to `/topic/chat/{chatId}`, SEND to `/app/chat.send`, assert events on topic and `/user/queue/*` as applicable.
+- **Fixtures:** Reusable builders for `User` (CLIENT/AGENT), `Chat`, messages; cleanup or `@Transactional` rollback per test class as appropriate.
+
+**Review checkpoint:** At least one happy-path (CU + AU attach + message) and one security regression (non-participant cannot subscribe or load messages).
 
 ---
 
@@ -183,8 +196,10 @@ Wire `npm` STOMP client, JWT on connect, subscribe to topics — only after back
 After each phase:
 
 1. Stop and **read the diff** for that phase only.
-2. Run **`./gradlew test`** (and targeted new tests).
-3. Use Swagger for REST; use a STOMP client for WS before integrating the SPA.
+2. Run **`./gradlew test`** (unit + slice); run **E2E** suite separately if tagged (e.g. JUnit `@Tag("e2e")`) when it is slower or needs Docker.
+3. Use Swagger for manual REST checks; use a STOMP client for manual WS checks during development.
+
+**Frontend:** Angular app structure, component tests, and Playwright/Cypress (or similar) **E2E** belong in the **separate Angular plan** — not this document.
 
 ---
 
@@ -194,4 +209,4 @@ After each phase:
 |------|------------|
 | Empty authorities break `@PreAuthorize` | Phase 0 |
 | WS bypasses HTTP filters | Dedicated handshake + STOMP interceptors (Phase 4–5) |
-| Agent reads messages before attach | Explicit rule in Phase 2 + tests |
+| Agent reads messages before attach | Explicit rule in Phase 2 + Phase 7–8 tests |
