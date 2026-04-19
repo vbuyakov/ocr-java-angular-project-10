@@ -1,6 +1,107 @@
-<div class="page">
-  <h1 class="page-title" data-testid="support-chat-heading">Support chat</h1>
-  <p class="page-hint">Live chat UI will be implemented in Phase 4.</p>
+<div class="page support-chat">
+  <div class="support-chat-head">
+    <h1 class="page-title" data-testid="support-chat-heading">Support chat</h1>
+    <a routerLink="/support/archived" class="support-chat-archived-link" data-testid="support-chat-link-archived"
+      >Archived chats</a
+    >
+  </div>
+
+  @if (loadError(); as le) {
+    <app-ui-alert variant="danger" [message]="le" testId="support-chat-load-error" />
+  }
+  @if (stompError(); as se) {
+    <app-ui-alert variant="warning" [message]="se" testId="support-chat-stomp-error" />
+  }
+  @if (chatClosed()) {
+    <app-ui-alert
+      variant="info"
+      message="This chat is closed. You can read past threads under Archived chats."
+      testId="support-chat-closed-banner"
+    />
+  }
+
+  @if (phase() === 'loading') {
+    <p class="page-hint" data-testid="support-chat-loading">Loading…</p>
+  }
+
+  @if (phase() === 'error') {
+    <p class="page-hint" data-testid="support-chat-error-state">Something went wrong. Try again later.</p>
+  }
+
+  @if (phase() === 'need-start') {
+    <div class="support-chat-start card">
+      <p class="support-chat-start-lead">Start by sending your first message to support.</p>
+      <label class="support-chat-label" for="chat-initial-message">Message</label>
+      <textarea
+        id="chat-initial-message"
+        class="support-chat-textarea"
+        rows="3"
+        data-testid="chat-initial-message"
+        [value]="initialDraft()"
+        (input)="onInitialInput($event)"
+      ></textarea>
+      <app-ui-button
+        variant="primary"
+        type="button"
+        testId="chat-start-submit"
+        [disabled]="submittingStart() || initialDraft().trim().length === 0"
+        (clicked)="startChat()"
+      >
+        @if (submittingStart()) {
+          Starting…
+        } @else {
+          Start conversation
+        }
+      </app-ui-button>
+    </div>
+  }
+
+  @if (phase() === 'active' && chatId(); as cid) {
+    <div class="support-chat-thread card" data-testid="support-chat-thread">
+      <div class="support-chat-messages" data-testid="chat-message-list">
+        @for (m of messages(); track m.id) {
+          <div class="support-chat-msg" data-testid="chat-message" [attr.data-message-id]="m.id">
+            <div class="support-chat-msg-meta">
+              <span class="support-chat-msg-author">{{ m.senderUsername }}</span>
+              <span class="support-chat-msg-time">{{ m.createdAt }}</span>
+              @if (m.edited) {
+                <span class="support-chat-msg-edited">(edited)</span>
+              }
+            </div>
+            <p class="support-chat-msg-body">{{ m.content }}</p>
+          </div>
+        } @empty {
+          <p class="page-hint" data-testid="chat-message-empty">No messages yet.</p>
+        }
+      </div>
+      @if (typingPeer()) {
+        <p class="support-chat-typing" data-testid="chat-typing-indicator">Someone is typing…</p>
+      }
+      @if (!chatClosed()) {
+        <div class="support-chat-compose">
+          <label class="support-chat-label" for="chat-compose-input">Your message</label>
+          <textarea
+            id="chat-compose-input"
+            class="support-chat-textarea"
+            rows="2"
+            data-testid="chat-compose-input"
+            [value]="draft()"
+            (input)="onDraftInput($event)"
+          ></textarea>
+          <app-ui-button
+            variant="primary"
+            type="button"
+            testId="chat-send"
+            [disabled]="sending() || draft().trim().length === 0"
+            (clicked)="sendMessage()"
+          >
+            Send
+          </app-ui-button>
+        </div>
+      }
+    </div>
+  }
+
   @if (showStompDebug()) {
     <p class="stomp-debug" data-testid="stomp-status">STOMP: {{ stomp.status() }}</p>
   }

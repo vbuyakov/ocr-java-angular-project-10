@@ -19,6 +19,7 @@
           <span class="app-nav-user" data-testid="nav-username">{{ auth.profile()?.username }}</span>
           @if (auth.role() === 'CLIENT') {
             <a routerLink="/support/chat" class="app-nav-link" data-testid="nav-support-chat">Chat</a>
+            <a routerLink="/support/archived" class="app-nav-link" data-testid="nav-support-archived">Archived</a>
           }
           @if (auth.role() === 'AGENT') {
             <a routerLink="/agent" class="app-nav-link" data-testid="nav-agent-inbox">Inbox</a>

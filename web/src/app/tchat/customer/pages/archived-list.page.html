@@ -1,0 +1,32 @@
+<div class="page archived-list">
+  <div class="archived-list-head">
+    <h1 class="page-title" data-testid="archived-list-heading">Archived chats</h1>
+    <a routerLink="/support/chat" class="archived-back" data-testid="nav-back-to-chat">Back to live chat</a>
+  </div>
+
+  @if (loadError(); as err) {
+    <app-ui-alert variant="danger" [message]="err" testId="archived-list-error" />
+  }
+
+  @if (loading()) {
+    <p class="page-hint" data-testid="archived-list-loading">Loading…</p>
+  } @else if (items().length === 0) {
+    <p class="page-hint" data-testid="archived-list-empty">No archived chats yet.</p>
+  } @else {
+    <ul class="archived-list-ul" data-testid="archived-list">
+      @for (c of items(); track c.chatId) {
+        <li>
+          <a
+            class="archived-list-row"
+            [routerLink]="['/support/archived', c.chatId]"
+            data-testid="archived-row"
+            [attr.data-chat-id]="c.chatId"
+          >
+            <span class="archived-list-id">{{ c.chatId }}</span>
+            <span class="archived-list-meta">Updated {{ c.updatedAt }}</span>
+          </a>
+        </li>
+      }
+    </ul>
+  }
+</div>

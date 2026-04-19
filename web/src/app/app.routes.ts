@@ -25,6 +25,18 @@ export const routes: Routes = [
           import('@app/tchat/customer/pages/support-chat.page').then((m) => m.SupportChatPageComponent),
       },
       {
+        path: 'support/archived',
+        canActivate: [authGuard, clientRoleGuard],
+        loadComponent: () =>
+          import('@app/tchat/customer/pages/archived-list.page').then((m) => m.ArchivedListPageComponent),
+      },
+      {
+        path: 'support/archived/:chatId',
+        canActivate: [authGuard, clientRoleGuard],
+        loadComponent: () =>
+          import('@app/tchat/customer/pages/archived-thread.page').then((m) => m.ArchivedThreadPageComponent),
+      },
+      {
         path: 'agent',
         canActivate: [authGuard, agentRoleGuard],
         loadComponent: () =>

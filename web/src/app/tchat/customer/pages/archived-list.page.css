@@ -1,0 +1,37 @@
+@reference "../../../../styles.css";
+
+.page {
+  @apply container mx-auto px-4 py-8;
+}
+
+.page-title {
+  @apply text-xl font-semibold text-[var(--color-text)];
+}
+
+.page-hint {
+  @apply mt-2 text-sm text-[var(--color-text-muted)];
+}
+
+.archived-list-head {
+  @apply flex flex-wrap items-end justify-between gap-3;
+}
+
+.archived-back {
+  @apply text-sm font-medium text-[var(--color-bs-primary)] underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-bs-primary)] focus-visible:ring-offset-2 rounded;
+}
+
+.archived-list-ul {
+  @apply mt-6 list-none space-y-2 p-0;
+}
+
+.archived-list-row {
+  @apply flex flex-col gap-1 rounded-lg border border-[var(--color-border)] bg-white px-4 py-3 text-left text-sm shadow-sm transition-colors hover:bg-[var(--color-surface)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-bs-primary)] focus-visible:ring-offset-2 sm:flex-row sm:items-center sm:justify-between;
+}
+
+.archived-list-id {
+  @apply font-mono text-xs text-[var(--color-text-muted)];
+}
+
+.archived-list-meta {
+  @apply text-xs text-[var(--color-text-muted)];
+}

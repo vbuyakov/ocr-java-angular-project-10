@@ -1,22 +1,15 @@
 /** Mirrors server DTOs for `/topic/chat/{chatId}` (see `ChatWsEvents` in the API). */
 
-export interface ChatMessagePayload {
-  readonly id: string;
-  readonly chatId: string;
-  readonly senderId: string;
-  readonly senderUsername: string;
-  readonly content: string;
-  readonly status: string;
-  readonly createdAt: string;
-  readonly updatedAt: string;
-  readonly edited: boolean;
-}
+import type { ChatMessageDto } from './chat-rest.models';
+
+/** @deprecated Use {@link ChatMessageDto}; kept for older imports. */
+export type ChatMessagePayload = ChatMessageDto;
 
 export interface MessageCreatedEvent {
   readonly type: 'MESSAGE_CREATED';
   readonly chatId: string;
   readonly clientMessageId: string;
-  readonly message: ChatMessagePayload;
+  readonly message: ChatMessageDto;
 }
 
 export interface MessageUpdatedEvent {
@@ -89,7 +82,7 @@ function readString(obj: Record<string, unknown>, key: string): string | undefin
   return typeof v === 'string' ? v : undefined;
 }
 
-function readMessage(value: unknown): ChatMessagePayload | undefined {
+function readMessage(value: unknown): ChatMessageDto | undefined {
   if (!isRecord(value)) {
     return undefined;
   }

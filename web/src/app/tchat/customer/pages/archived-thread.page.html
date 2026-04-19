@@ -1,0 +1,29 @@
+<div class="page archived-thread">
+  <div class="archived-thread-head">
+    <h1 class="page-title" data-testid="archived-thread-heading">Archived thread</h1>
+    <a routerLink="/support/archived" class="archived-back" data-testid="archived-thread-back">Back to list</a>
+  </div>
+  <p class="page-hint archived-thread-id" data-testid="archived-thread-chat-id">Chat {{ chatId() }}</p>
+
+  @if (loadError(); as err) {
+    <app-ui-alert variant="danger" [message]="err" testId="archived-thread-error" />
+  }
+
+  @if (loading()) {
+    <p class="page-hint" data-testid="archived-thread-loading">Loading…</p>
+  } @else {
+    <div class="archived-thread-messages card" data-testid="archived-message-list">
+      @for (m of messages(); track m.id) {
+        <div class="archived-msg" data-testid="archived-message">
+          <div class="archived-msg-meta">
+            <span>{{ m.senderUsername }}</span>
+            <span>{{ m.createdAt }}</span>
+          </div>
+          <p class="archived-msg-body">{{ m.content }}</p>
+        </div>
+      } @empty {
+        <p class="page-hint">No messages.</p>
+      }
+    </div>
+  }
+</div>

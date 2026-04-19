@@ -16,7 +16,7 @@ todos:
     status: completed
   - id: fe-phase-4-customer-support
     content: "Phase 4: Customer feature — GET/POST active chat, archived list, messages, WS topic + errors queue, typing debounce"
-    status: pending
+    status: completed
   - id: fe-phase-5-agent-workbench
     content: "Phase 5: Agent feature — bucket tabs (REST), /user/queue/chats, chat detail, attach/send/edit/delete/close"
     status: pending
