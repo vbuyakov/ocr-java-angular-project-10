@@ -26,6 +26,7 @@ import { scrollChatThreadToBottom } from '@app/core/util/scroll-thread';
 import { ChatStompService } from '@app/core/websocket/chat-stomp.service';
 import type { ChatMessageDto } from '@app/tchat/models/chat-rest.models';
 import { parseChatStompErrorPayload, parseChatTopicPayload } from '@app/tchat/models/ws-events';
+import { nextMessageLiveAnnouncement } from '@app/tchat/util/chat-live-announcement';
 import { buildChatMessageRows, type ChatMessageRow } from '@app/tchat/util/chat-message-rows';
 
 import { CustomerChatApiService } from '../services/customer-chat.api.service';
@@ -60,6 +61,9 @@ export class SupportChatPageComponent implements OnInit {
   protected readonly sending = signal(false);
   protected readonly typingPeerLabel = signal<string | null>(null);
   protected readonly chatClosed = signal(false);
+  protected readonly messageLiveAnnouncement = signal('');
+
+  private messageAnnouncePrev = 0;
 
   protected readonly messageRows = computed<ChatMessageRow[]>(() => buildChatMessageRows(this.messages()));
 
@@ -95,6 +99,16 @@ export class SupportChatPageComponent implements OnInit {
     effect(() => {
       this.messages();
       scrollChatThreadToBottom(this.chatMsgList()?.nativeElement);
+    });
+    effect(() => {
+      const list = this.messages();
+      const { count, text } = nextMessageLiveAnnouncement(this.messageAnnouncePrev, list, (k, p) =>
+        this.i18n.translate(k, p),
+      );
+      this.messageAnnouncePrev = count;
+      if (text) {
+        this.messageLiveAnnouncement.set(text);
+      }
     });
     this.destroyRef.onDestroy(() => {
       this.unbindStomp();
@@ -225,7 +239,10 @@ export class SupportChatPageComponent implements OnInit {
       .getMessages(chatId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (res) => this.messages.set(res.messages),
+        next: (res) => {
+          this.messages.set(res.messages);
+          this.messageAnnouncePrev = this.messages().length;
+        },
         error: (err: unknown) => this.loadError.set(this.httpErrorMessage(err)),
       });
   }

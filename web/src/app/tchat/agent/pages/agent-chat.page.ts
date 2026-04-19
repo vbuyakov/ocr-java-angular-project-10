@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -28,6 +29,7 @@ import { scrollChatThreadToBottom } from '@app/core/util/scroll-thread';
 import { ChatStompService } from '@app/core/websocket/chat-stomp.service';
 import type { ChatMessageDto, ChatMessagesResponse, ChatSummaryResponse } from '@app/tchat/models/chat-rest.models';
 import { parseChatStompErrorPayload, parseChatTopicPayload } from '@app/tchat/models/ws-events';
+import { nextMessageLiveAnnouncement } from '@app/tchat/util/chat-live-announcement';
 import { buildChatMessageRows, type ChatMessageRow } from '@app/tchat/util/chat-message-rows';
 
 import { AgentChatApiService } from '../services/agent-chat.api.service';
@@ -96,6 +98,9 @@ export class AgentChatPageComponent implements OnInit {
   private autoClaimed = false;
 
   protected readonly closeChatConfirmOpen = signal(false);
+  protected readonly messageLiveAnnouncement = signal('');
+
+  private messageAnnouncePrev = 0;
 
   private readonly scheduleTypingStomp = debounceLeadingEdge(TYPING_DEBOUNCE_MS, () => {
     const id = this.chatId();
@@ -109,6 +114,16 @@ export class AgentChatPageComponent implements OnInit {
     effect(() => {
       this.messages();
       scrollChatThreadToBottom(this.chatMsgList()?.nativeElement);
+    });
+    effect(() => {
+      const list = this.messages();
+      const { count, text } = nextMessageLiveAnnouncement(this.messageAnnouncePrev, list, (k, p) =>
+        this.i18n.translate(k, p),
+      );
+      this.messageAnnouncePrev = count;
+      if (text) {
+        this.messageLiveAnnouncement.set(text);
+      }
     });
     this.destroyRef.onDestroy(() => {
       this.unbindStomp();
@@ -124,9 +139,37 @@ export class AgentChatPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.stomp.connect();
-    this.loadChatHeadline();
-    const autoClaim = this.route.snapshot.queryParamMap.get('claim') === '1';
-    this.loadMessages(autoClaim);
+    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      if (!this.route.snapshot.paramMap.get('chatId')) {
+        return;
+      }
+      this.resetChatPageForRouteChange();
+      const autoClaim = this.route.snapshot.queryParamMap.get('claim') === '1';
+      this.loadChatHeadline();
+      this.loadMessages(autoClaim);
+    });
+  }
+
+  private resetChatPageForRouteChange(): void {
+    this.messageAnnouncePrev = 0;
+    this.messageLiveAnnouncement.set('');
+    this.unbindStomp();
+    if (this.remoteTypingClear !== undefined) {
+      clearTimeout(this.remoteTypingClear);
+      this.remoteTypingClear = undefined;
+    }
+    this.typingPeerLabel.set(null);
+    this.messages.set([]);
+    this.draft.set('');
+    this.phase.set('loading');
+    this.loadError.set(null);
+    this.stompError.set(null);
+    this.chatClosed.set(false);
+    this.chatMeta.set(null);
+    this.claiming.set(false);
+    this.sending.set(false);
+    this.closeChatConfirmOpen.set(false);
+    this.autoClaimed = false;
   }
 
   private loadChatHeadline(): void {
@@ -375,6 +418,7 @@ export class AgentChatPageComponent implements OnInit {
 
   private applyMessagesResponse(res: ChatMessagesResponse): void {
     this.messages.set(sortChronological(res.messages));
+    this.messageAnnouncePrev = this.messages().length;
     const u = res.clientUsername?.trim();
     const c = res.chatCreatedAt;
     if (u && c) {

@@ -3,7 +3,9 @@ import { Client, type IMessage, type StompSubscription } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 
 import { AuthTokenStore } from '@app/auth/auth-token.store';
-import { APP_SETTINGS, type AppSettings } from '@app/core/config/app-settings';
+import { APP_SETTINGS } from '@app/core/config/app-settings';
+
+import { buildSockJsUrl } from './sock-js-endpoint';
 
 export type ChatStompConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
 
@@ -131,21 +133,4 @@ export class ChatStompService {
     }
     this.activeStompSubscriptions = [];
   }
-}
-
-function buildSockJsUrl(settings: AppSettings, token: string): string {
-  const base = resolveSockJsBaseUrl(settings);
-  const q = new URLSearchParams({ access_token: token });
-  return `${base}/ws?${q.toString()}`;
-}
-
-function resolveSockJsBaseUrl(settings: AppSettings): string {
-  const trimmed = settings.wsUrl.trim();
-  if (trimmed.length > 0) {
-    return trimmed.replace(/\/$/, '');
-  }
-  if (typeof globalThis !== 'undefined' && 'location' in globalThis) {
-    return (globalThis as Window & typeof globalThis).location.origin;
-  }
-  return '';
 }

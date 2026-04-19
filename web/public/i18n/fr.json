@@ -50,7 +50,8 @@
     "noMessages": "Aucun message.",
     "charsRemaining": "{{remaining}} caractères restants (max {{max}}).",
     "typing": "{{name}} est en train d’écrire…",
-    "someone": "Quelqu’un"
+    "someone": "Quelqu’un",
+    "liveNewMessage": "Nouveau message de {{who}} : {{preview}}"
   },
   "agentInbox": {
     "title": "Boîte agent",
@@ -77,6 +78,7 @@
     "closedBanner": "Cette discussion est clôturée (lecture seule).",
     "leave": "Quitter la discussion",
     "close": "Clôturer la discussion",
+    "sessionActionsAria": "Actions sur la conversation",
     "closeConfirmTitle": "Clôturer cette discussion ?",
     "closeConfirmAction": "Clôturer",
     "closeConfirmBody": "Le client ne pourra plus envoyer de nouveaux messages dans cette conversation."

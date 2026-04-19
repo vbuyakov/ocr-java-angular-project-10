@@ -36,8 +36,16 @@
   @apply mt-6 flex flex-col gap-4 p-4;
 }
 
+.agent-chat-active-shell {
+  @apply mt-6 flex flex-col gap-3 lg:grid lg:grid-cols-[minmax(0,1fr)_12rem] lg:items-start lg:gap-6;
+}
+
 .agent-chat-thread {
-  @apply mt-6 flex flex-col gap-4 p-4;
+  @apply flex flex-col gap-4 p-4;
+}
+
+.agent-chat-active-shell > .agent-chat-thread {
+  @apply min-w-0;
 }
 
 .agent-chat-compose {
@@ -73,7 +81,7 @@
 }
 
 .agent-chat-session-bar {
-  @apply mt-3 flex flex-wrap gap-2;
+  @apply mt-3 flex flex-wrap gap-2 lg:mt-0 lg:flex-col lg:items-stretch;
 }
 
 .agent-chat-confirm-copy {

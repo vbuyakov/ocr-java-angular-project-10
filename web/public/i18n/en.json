@@ -50,7 +50,8 @@
     "noMessages": "No messages.",
     "charsRemaining": "{{remaining}} characters remaining (max {{max}}).",
     "typing": "{{name}} is typing…",
-    "someone": "Someone"
+    "someone": "Someone",
+    "liveNewMessage": "New message from {{who}}: {{preview}}"
   },
   "agentInbox": {
     "title": "Agent inbox",
@@ -77,6 +78,7 @@
     "closedBanner": "This chat is closed (read-only).",
     "leave": "Leave chat",
     "close": "Close chat",
+    "sessionActionsAria": "Conversation actions",
     "closeConfirmTitle": "Close this chat?",
     "closeConfirmAction": "Close chat",
     "closeConfirmBody": "The customer will not be able to send new messages in this conversation."

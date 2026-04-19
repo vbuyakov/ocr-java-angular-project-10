@@ -50,6 +50,7 @@
         testId="agent-chat-closed-banner"
       />
     }
+    <div class="agent-chat-active-shell">
     <div class="agent-chat-thread card" data-testid="agent-chat-thread">
       <div class="chat-thread-pane">
         <div #chatMsgList class="chat-msg-list" data-testid="agent-chat-message-list">
@@ -139,7 +140,7 @@
       }
     </div>
     @if (!chatClosed()) {
-      <div class="agent-chat-session-bar" data-testid="agent-chat-session-panel">
+      <aside class="agent-chat-session-bar" data-testid="agent-chat-session-panel" aria-label="{{ 'agentChat.sessionActionsAria' | translate }}">
         <app-ui-button
           variant="secondary"
           type="button"
@@ -158,8 +159,9 @@
         >
           {{ 'agentChat.close' | translate }}
         </app-ui-button>
-      </div>
+      </aside>
     }
+    </div>
   }
 
   <app-ui-modal
@@ -174,4 +176,6 @@
   >
     <p class="agent-chat-confirm-copy">{{ 'agentChat.closeConfirmBody' | translate }}</p>
   </app-ui-modal>
+
+  <div class="sr-only" role="status" aria-live="polite" aria-atomic="true">{{ messageLiveAnnouncement() }}</div>
 </div>
