@@ -19,9 +19,18 @@
         <ng-content />
       </div>
       <div class="ui-modal-actions">
-        <app-ui-button variant="secondary" [testId]="testId() + '-close'" (clicked)="close()">
-          Close
-        </app-ui-button>
+        @if (actionLayout() === 'confirm') {
+          <app-ui-button variant="secondary" [testId]="testId() + '-cancel'" (clicked)="onCancelClick()">
+            {{ cancelLabel() }}
+          </app-ui-button>
+          <app-ui-button variant="primary" [testId]="testId() + '-confirm'" (clicked)="onConfirmClick()">
+            {{ confirmLabel() }}
+          </app-ui-button>
+        } @else {
+          <app-ui-button variant="secondary" [testId]="testId() + '-close'" (clicked)="onCloseClick()">
+            {{ closeLabel() }}
+          </app-ui-button>
+        }
       </div>
     </div>
   </div>

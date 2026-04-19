@@ -1,62 +1,81 @@
 <div class="dev-ui" data-testid="dev-ui-kit">
-  <h1 class="dev-ui-title">UI kit (dev)</h1>
-  <p class="dev-ui-lead">Bootstrap-style primitives built with Tailwind — Phase 1.</p>
+  <header class="dev-ui-header">
+    <h1 class="dev-ui-title">UI kit</h1>
+    <p class="dev-ui-lead">Development-only gallery of shared components (Tailwind, Bootstrap-inspired tokens).</p>
+  </header>
 
-  <section class="dev-ui-section" aria-label="Buttons">
-    <h2 class="dev-ui-section-title">Buttons</h2>
-    <div class="dev-ui-row">
-      <app-ui-button variant="primary" testId="demo-primary-button">Primary</app-ui-button>
-      <app-ui-button variant="secondary" testId="demo-secondary-button">Secondary</app-ui-button>
-      <app-ui-button variant="outline" testId="demo-outline-button">Outline</app-ui-button>
-    </div>
-  </section>
+  <div class="dev-ui-panels">
+    <section class="dev-ui-panel" aria-labelledby="dev-ui-buttons-heading">
+      <h2 id="dev-ui-buttons-heading" class="dev-ui-panel-title">Buttons</h2>
+      <div class="dev-ui-row">
+        <app-ui-button variant="primary" testId="demo-primary-button">Primary</app-ui-button>
+        <app-ui-button variant="secondary" testId="demo-secondary-button">Secondary</app-ui-button>
+        <app-ui-button variant="outline" testId="demo-outline-button">Outline</app-ui-button>
+      </div>
+    </section>
 
-  <section class="dev-ui-section" aria-label="Input">
-    <h2 class="dev-ui-section-title">Input</h2>
-    <app-ui-input
-      label="Label"
-      placeholder="Type here…"
-      testId="demo-input"
-      [(value)]="demoInputValue"
-    />
-  </section>
+    <section class="dev-ui-panel" aria-labelledby="dev-ui-input-heading">
+      <h2 id="dev-ui-input-heading" class="dev-ui-panel-title">Text field</h2>
+      <app-ui-input
+        label="Label"
+        placeholder="Placeholder…"
+        testId="demo-input"
+        [(value)]="demoInputValue"
+      />
+    </section>
 
-  <section class="dev-ui-section" aria-label="Card">
-    <h2 class="dev-ui-section-title">Card</h2>
-    <app-ui-card title="Card title" testId="demo-card">
-      <p>Card body content with responsive layout (stacks on small screens).</p>
-    </app-ui-card>
-  </section>
+    <section class="dev-ui-panel dev-ui-panel--wide" aria-labelledby="dev-ui-card-heading">
+      <h2 id="dev-ui-card-heading" class="dev-ui-panel-title">Card</h2>
+      <app-ui-card title="Card title" testId="demo-card">
+        <p class="dev-ui-card-copy">Body content uses the same spacing and borders as production cards.</p>
+      </app-ui-card>
+    </section>
 
-  <section class="dev-ui-section" aria-label="Alerts">
-    <h2 class="dev-ui-section-title">Alerts</h2>
-    <div class="dev-ui-stack">
-      <app-ui-alert variant="info" message="Informational message." testId="demo-alert-info" />
-      <app-ui-alert variant="success" message="Success state." testId="demo-alert-success" />
-      <app-ui-alert variant="warning" message="Warning state." testId="demo-alert-warning" />
-      <app-ui-alert variant="danger" message="Danger state." testId="demo-alert-danger" />
-    </div>
-  </section>
+    <section class="dev-ui-panel dev-ui-panel--wide" aria-labelledby="dev-ui-alerts-heading">
+      <h2 id="dev-ui-alerts-heading" class="dev-ui-panel-title">Alerts</h2>
+      <div class="dev-ui-alert-grid">
+        <app-ui-alert variant="info" message="Informational message." testId="demo-alert-info" />
+        <app-ui-alert variant="success" message="Success state." testId="demo-alert-success" />
+        <app-ui-alert variant="warning" message="Warning state." testId="demo-alert-warning" />
+        <app-ui-alert variant="danger" message="Danger state." testId="demo-alert-danger" />
+      </div>
+    </section>
 
-  <section class="dev-ui-section" aria-label="Tabs">
-    <h2 class="dev-ui-section-title">Tabs</h2>
-    <app-ui-tabs [tabs]="demoTabs" [(selectedId)]="selectedTabId" testId="demo-tabs" />
-    <p class="dev-ui-tab-panel" data-testid="demo-tab-panel">
-      @if (selectedTabId === 'a') {
-        Content for Tab A
-      } @else {
-        Content for Tab B
-      }
-    </p>
-  </section>
+    <section class="dev-ui-panel dev-ui-panel--wide" aria-labelledby="dev-ui-tabs-heading">
+      <h2 id="dev-ui-tabs-heading" class="dev-ui-panel-title">Tabs</h2>
+      <app-ui-tabs [tabs]="demoTabs" [(selectedId)]="selectedTabId" testId="demo-tabs" />
+      <div class="dev-ui-tab-panel" data-testid="demo-tab-panel" role="tabpanel">
+        @if (selectedTabId === 'a') {
+          Panel for tab A.
+        } @else {
+          Panel for tab B.
+        }
+      </div>
+    </section>
 
-  <section class="dev-ui-section" aria-label="Modal">
-    <h2 class="dev-ui-section-title">Modal</h2>
-    <app-ui-button variant="primary" testId="demo-modal-open" (clicked)="modalOpen = true">
-      Open modal
-    </app-ui-button>
-    <app-ui-modal [(open)]="modalOpen" title="Example modal" testId="demo-modal">
-      <p>Modal body — backdrop click closes.</p>
-    </app-ui-modal>
-  </section>
+    <section class="dev-ui-panel dev-ui-panel--wide" aria-labelledby="dev-ui-modal-heading">
+      <h2 id="dev-ui-modal-heading" class="dev-ui-panel-title">Modal</h2>
+      <div class="dev-ui-row">
+        <app-ui-button variant="primary" testId="demo-modal-open" (clicked)="modalOpen = true">
+          Open modal
+        </app-ui-button>
+        <app-ui-button variant="outline" testId="demo-confirm-modal-open" (clicked)="confirmModalOpen = true">
+          Open confirm
+        </app-ui-button>
+      </div>
+      <app-ui-modal [(open)]="modalOpen" title="Example modal" testId="demo-modal">
+        <p class="dev-ui-modal-copy">Backdrop click closes the dialog.</p>
+      </app-ui-modal>
+      <app-ui-modal
+        [(open)]="confirmModalOpen"
+        actionLayout="confirm"
+        title="Confirm?"
+        cancelLabel="Cancel"
+        confirmLabel="Continue"
+        testId="demo-confirm-modal"
+      >
+        <p class="dev-ui-modal-copy">Backdrop or Cancel dismisses without continuing.</p>
+      </app-ui-modal>
+    </section>
+  </div>
 </div>

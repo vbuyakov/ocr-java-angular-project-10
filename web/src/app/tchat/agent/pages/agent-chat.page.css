@@ -20,8 +20,16 @@
   @apply text-sm font-medium text-[var(--color-bs-primary)] underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-bs-primary)] focus-visible:ring-offset-2 rounded;
 }
 
-.agent-chat-id {
-  @apply font-mono text-xs;
+.agent-chat-meta-block {
+  @apply mt-2 space-y-1;
+}
+
+.agent-chat-client-line {
+  @apply text-sm font-medium text-[var(--color-text)];
+}
+
+.agent-chat-meta-placeholder {
+  @apply text-[var(--color-text-muted)];
 }
 
 .agent-chat-claim {
@@ -32,32 +40,12 @@
   @apply mt-6 flex flex-col gap-4 p-4;
 }
 
-.agent-chat-messages {
-  @apply flex max-h-[min(28rem,50vh)] flex-col gap-3 overflow-y-auto pr-1;
-}
-
-.agent-chat-msg {
-  @apply rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2;
-}
-
-.agent-chat-msg-meta {
-  @apply flex flex-wrap gap-2 text-xs text-[var(--color-text-muted)];
-}
-
-.agent-chat-msg-body {
-  @apply mt-1 whitespace-pre-wrap text-sm text-[var(--color-text)];
-}
-
-.agent-chat-msg-edited {
-  @apply italic text-[var(--color-text-muted)];
-}
-
-.agent-chat-typing {
-  @apply text-xs italic text-[var(--color-text-muted)];
-}
-
 .agent-chat-compose {
-  @apply flex flex-col gap-3 border-t border-[var(--color-border)] pt-4;
+  @apply flex flex-col gap-2 border-t border-[var(--color-border)] pt-4;
+}
+
+.agent-chat-compose-row {
+  @apply flex flex-row items-end gap-3;
 }
 
 .agent-chat-label {
@@ -65,13 +53,29 @@
 }
 
 .agent-chat-textarea {
-  @apply min-h-11 w-full rounded-md border border-[var(--color-border)] bg-white px-3 py-2 text-sm text-[var(--color-text)] shadow-sm focus-visible:border-[var(--color-brand-blue)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-blue)]/30;
+  @apply min-h-[11rem] w-full rounded-md border border-[var(--color-border)] bg-white px-3 py-2 text-sm text-[var(--color-text)] shadow-sm focus-visible:border-[var(--color-brand-blue)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-blue)]/30;
 }
 
-.agent-chat-actions {
-  @apply flex flex-wrap gap-3;
+.agent-chat-textarea-fill {
+  @apply min-w-0 flex-1;
 }
 
-.stomp-debug {
-  @apply mt-4 text-xs text-[var(--color-text-muted)];
+:host ::ng-deep .agent-chat-send-col button {
+  @apply w-auto;
+}
+
+.agent-chat-char-counter {
+  @apply text-xs text-[var(--color-text-muted)];
+}
+
+.agent-chat-char-counter-warn {
+  @apply font-medium text-red-600;
+}
+
+.agent-chat-session-bar {
+  @apply mt-3 flex flex-wrap gap-2;
+}
+
+.agent-chat-confirm-copy {
+  @apply m-0 text-sm leading-relaxed text-[var(--color-text-muted)];
 }

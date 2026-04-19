@@ -51,6 +51,13 @@ export interface TypingEvent {
   readonly type: 'TYPING';
   readonly chatId: string;
   readonly userId: string;
+  readonly username?: string;
+}
+
+export interface TypingStoppedEvent {
+  readonly type: 'TYPING_STOPPED';
+  readonly chatId: string;
+  readonly userId: string;
 }
 
 export type ChatTopicEvent =
@@ -60,7 +67,8 @@ export type ChatTopicEvent =
   | ChatStatusEvent
   | UserJoinedEvent
   | UserLeftEvent
-  | TypingEvent;
+  | TypingEvent
+  | TypingStoppedEvent;
 
 export interface ChatListUpdatedEvent {
   readonly type: 'CHAT_LIST_UPDATED';
@@ -192,7 +200,18 @@ export function parseChatTopicPayload(json: string): ChatTopicEvent | null {
       if (chatId === undefined || userId === undefined) {
         return null;
       }
-      return { type: 'TYPING', chatId, userId };
+      const username = readString(raw, 'username');
+      return username === undefined
+        ? { type: 'TYPING', chatId, userId }
+        : { type: 'TYPING', chatId, userId, username };
+    }
+    case 'TYPING_STOPPED': {
+      const chatId = readString(raw, 'chatId');
+      const userId = readString(raw, 'userId');
+      if (chatId === undefined || userId === undefined) {
+        return null;
+      }
+      return { type: 'TYPING_STOPPED', chatId, userId };
     }
     default:
       return null;

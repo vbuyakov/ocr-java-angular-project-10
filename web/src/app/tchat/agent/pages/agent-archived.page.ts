@@ -1,18 +1,10 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  DestroyRef,
-  inject,
-  OnInit,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 
-import { APP_SETTINGS } from '@app/core/config/app-settings';
 import { ChatStompService } from '@app/core/websocket/chat-stomp.service';
 import type { ChatSummaryResponse } from '@app/tchat/models/chat-rest.models';
+import { formatChatListLine } from '@app/tchat/util/chat-list-label';
 
 import { AgentChatApiService } from '../services/agent-chat.api.service';
 
@@ -25,15 +17,15 @@ import { AgentChatApiService } from '../services/agent-chat.api.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AgentArchivedPageComponent implements OnInit {
-  private readonly settings = inject(APP_SETTINGS);
   private readonly destroyRef = inject(DestroyRef);
   private readonly api = inject(AgentChatApiService);
   protected readonly stomp = inject(ChatStompService);
 
-  protected readonly showStompDebug = computed(() => !this.settings.production);
   protected readonly items = signal<ChatSummaryResponse[]>([]);
   protected readonly loading = signal(true);
   protected readonly loadError = signal<string | null>(null);
+
+  protected readonly chatListLine = formatChatListLine;
 
   private listSub: Subscription | undefined;
 

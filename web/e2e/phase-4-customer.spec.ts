@@ -33,7 +33,6 @@ test.describe('Phase 4 — customer chat', () => {
 
     await loginClient(page);
     await expect(page.getByTestId('support-chat-heading')).toBeVisible();
-    await expect(page.getByTestId('stomp-status')).toContainText('connected', { timeout: 20_000 });
 
     const thread = page.getByTestId('support-chat-thread');
     const start = page.getByTestId('chat-initial-message');

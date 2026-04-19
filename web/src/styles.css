@@ -52,4 +52,8 @@
   .btn-outline {
     @apply inline-flex min-h-11 min-w-[2.75rem] items-center justify-center rounded-md border border-[var(--color-bs-primary)] bg-transparent px-4 py-2 text-sm font-medium text-[var(--color-bs-primary)] transition-colors hover:bg-[var(--color-bs-primary)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-bs-primary)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
   }
+
+  .btn-compact {
+    @apply min-h-8 px-2.5 py-1 text-xs;
+  }
 }

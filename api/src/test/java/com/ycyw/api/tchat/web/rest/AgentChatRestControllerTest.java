@@ -1,5 +1,6 @@
 package com.ycyw.api.tchat.web.rest;
 
+import com.ycyw.api.tchat.dto.AgentInboxBucketCountsResponse;
 import com.ycyw.api.tchat.dto.ChatListResponse;
 import com.ycyw.api.tchat.model.AgentChatBucket;
 import com.ycyw.api.tchat.service.ChatService;
@@ -49,6 +50,16 @@ class AgentChatRestControllerTest {
                                 .with(authentication(agentToken())))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.hasMore").value(false));
+    }
+
+    @Test
+    void getInboxBucketCounts_ok() throws Exception {
+        when(chatService.getInboxBucketCountsForAgent(agentId)).thenReturn(new AgentInboxBucketCountsResponse(2L, 5L));
+
+        mockMvc.perform(get("/api/agent/chats/bucket-counts").with(authentication(agentToken())))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.newRequests").value(2))
+                .andExpect(jsonPath("$.myActive").value(5));
     }
 
     private UsernamePasswordAuthenticationToken agentToken() {

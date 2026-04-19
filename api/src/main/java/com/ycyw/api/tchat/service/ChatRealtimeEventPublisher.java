@@ -57,8 +57,13 @@ public class ChatRealtimeEventPublisher {
         runAfterCommit(() -> messagingTemplate.convertAndSend(topicDestination(chatId), payload));
     }
 
-    public void publishTyping(UUID chatId, UUID userId) {
-        var payload = ChatWsEvents.Typing.of(chatId, userId);
+    public void publishTyping(UUID chatId, UUID userId, String username) {
+        var payload = ChatWsEvents.Typing.of(chatId, userId, username);
+        runAfterCommit(() -> messagingTemplate.convertAndSend(topicDestination(chatId), payload));
+    }
+
+    public void publishTypingStopped(UUID chatId, UUID userId) {
+        var payload = ChatWsEvents.TypingStopped.of(chatId, userId);
         runAfterCommit(() -> messagingTemplate.convertAndSend(topicDestination(chatId), payload));
     }
 

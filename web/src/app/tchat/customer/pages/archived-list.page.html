@@ -22,8 +22,7 @@
             data-testid="archived-row"
             [attr.data-chat-id]="c.chatId"
           >
-            <span class="archived-list-id">{{ c.chatId }}</span>
-            <span class="archived-list-meta">Updated {{ c.updatedAt }}</span>
+            <span class="archived-list-line">{{ chatListLine(c) }}</span>
           </a>
         </li>
       }

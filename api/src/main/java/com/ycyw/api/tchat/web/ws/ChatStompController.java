@@ -81,7 +81,7 @@ public class ChatStompController {
     @MessageMapping("/chat.typing")
     public void typing(@Payload @Valid ChatIdStompPayload payload, Principal principal) {
         User user = requireUser(principal);
-        chatService.recordTypingIndicator(payload.chatId(), user.getId());
+        chatService.recordTypingIndicator(payload.chatId(), user);
     }
 
     // --- Error responses to /user/queue/errors (relative to user prefix) ---

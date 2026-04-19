@@ -28,10 +28,6 @@
   @apply flex flex-col gap-1 rounded-lg border border-[var(--color-border)] bg-white px-4 py-3 text-left text-sm shadow-sm transition-colors hover:bg-[var(--color-surface)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-bs-primary)] focus-visible:ring-offset-2 sm:flex-row sm:items-center sm:justify-between;
 }
 
-.archived-list-id {
-  @apply font-mono text-xs text-[var(--color-text-muted)];
-}
-
-.archived-list-meta {
-  @apply text-xs text-[var(--color-text-muted)];
+.archived-list-line {
+  @apply font-medium text-[var(--color-text)];
 }

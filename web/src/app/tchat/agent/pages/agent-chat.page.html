@@ -3,7 +3,14 @@
     <h1 class="page-title" data-testid="agent-chat-heading">Chat</h1>
     <a routerLink="/agent" class="agent-chat-back" data-testid="agent-chat-back">Back to inbox</a>
   </div>
-  <p class="page-hint agent-chat-id" data-testid="agent-chat-id">ID {{ chatId() }}</p>
+
+  <div class="agent-chat-meta-block">
+    @if (chatClientHeadline(); as headline) {
+      <p class="agent-chat-client-line" data-testid="agent-chat-client-line">{{ headline }}</p>
+    } @else if (phase() !== 'forbidden') {
+      <p class="agent-chat-meta-placeholder page-hint" data-testid="agent-chat-meta-placeholder">Loading…</p>
+    }
+  </div>
 
   @if (loadError(); as le) {
     <app-ui-alert variant="danger" [message]="le" testId="agent-chat-load-error" />
@@ -42,56 +49,127 @@
       />
     }
     <div class="agent-chat-thread card" data-testid="agent-chat-thread">
-      <div class="agent-chat-messages" data-testid="agent-chat-message-list">
-        @for (m of messages(); track m.id) {
-          <div class="agent-chat-msg" data-testid="agent-chat-message" [attr.data-message-id]="m.id">
-            <div class="agent-chat-msg-meta">
-              <span>{{ m.senderUsername }}</span>
-              <span>{{ m.createdAt }}</span>
-              @if (m.edited) {
-                <span class="agent-chat-msg-edited">(edited)</span>
-              }
-            </div>
-            <p class="agent-chat-msg-body">{{ m.content }}</p>
-          </div>
-        } @empty {
-          <p class="page-hint">No messages yet.</p>
+      <div class="chat-thread-pane">
+        <div #chatMsgList class="chat-msg-list" data-testid="agent-chat-message-list">
+          @for (row of messageRows(); track row.message.id) {
+            @if (row.message.senderId === auth.profile()?.id) {
+              <div
+                class="chat-msg-row chat-msg-row--out"
+                [class.chat-msg-row--tight]="!row.isFirstInGroup"
+                [class.chat-msg-row--loose]="row.isFirstInGroup"
+                data-testid="agent-chat-message"
+                [attr.data-message-id]="row.message.id"
+              >
+                <div class="chat-bubble chat-bubble--out">
+                  <div class="chat-bubble-name">Me</div>
+                  <p class="chat-bubble-body">{{ row.message.content }}</p>
+                  <div class="chat-bubble-footer">
+                    <span>{{ row.message.createdAt | chatDateTime }}</span>
+                    @if (row.message.edited) {
+                      <span class="chat-bubble-edited">edited</span>
+                    }
+                  </div>
+                </div>
+              </div>
+            } @else {
+              <div
+                class="chat-msg-row chat-msg-row--in"
+                [class.chat-msg-row--tight]="!row.isFirstInGroup"
+                [class.chat-msg-row--loose]="row.isFirstInGroup"
+                data-testid="agent-chat-message"
+                [attr.data-message-id]="row.message.id"
+              >
+                <div class="chat-bubble chat-bubble--in">
+                  <div class="chat-bubble-name">{{ row.message.senderUsername }}</div>
+                  <p class="chat-bubble-body">{{ row.message.content }}</p>
+                  <div class="chat-bubble-footer">
+                    <span>{{ row.message.createdAt | chatDateTime }}</span>
+                    @if (row.message.edited) {
+                      <span class="chat-bubble-edited">edited</span>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+          } @empty {
+            <p class="page-hint chat-thread-empty-hint">No messages yet.</p>
+          }
+        </div>
+        @if (typingPeerLabel(); as who) {
+          <p class="chat-typing-line" data-testid="agent-chat-typing">{{ who }} is typing…</p>
         }
       </div>
-      @if (typingPeer()) {
-        <p class="agent-chat-typing" data-testid="agent-chat-typing">Someone is typing…</p>
-      }
       @if (!chatClosed()) {
         <div class="agent-chat-compose">
           <label class="agent-chat-label" for="agent-compose-input">Message</label>
-          <textarea
-            id="agent-compose-input"
-            class="agent-chat-textarea"
-            rows="2"
-            data-testid="agent-compose-input"
-            [value]="draft()"
-            (input)="onDraftInput($event)"
-          ></textarea>
-          <div class="agent-chat-actions">
-            <app-ui-button
-              variant="primary"
-              type="button"
-              testId="agent-send"
-              [disabled]="sending() || draft().trim().length === 0"
-              (clicked)="sendMessage()"
-            >
-              Send
-            </app-ui-button>
-            <app-ui-button variant="secondary" type="button" testId="agent-close-chat" (clicked)="closeChat()">
-              Close chat
-            </app-ui-button>
+          <div class="agent-chat-compose-row">
+            <textarea
+              id="agent-compose-input"
+              class="agent-chat-textarea agent-chat-textarea-fill"
+              rows="4"
+              data-testid="agent-compose-input"
+              [value]="draft()"
+              (input)="onDraftInput($event)"
+              (keydown)="onComposeKeydown($event)"
+            ></textarea>
+            <div class="agent-chat-send-col">
+              <app-ui-button
+                variant="primary"
+                type="button"
+                testId="agent-send"
+                [disabled]="sendDisabled()"
+                (clicked)="sendMessage()"
+              >
+                Send
+              </app-ui-button>
+            </div>
           </div>
+          <p
+            class="agent-chat-char-counter"
+            [class.agent-chat-char-counter-warn]="draft().length > maxMessageChars"
+            data-testid="agent-compose-counter"
+          >
+            {{ composeCharsRemaining() }} characters remaining (max {{ maxMessageChars }}).
+          </p>
         </div>
       }
     </div>
+    @if (!chatClosed()) {
+      <div class="agent-chat-session-bar" data-testid="agent-chat-session-panel">
+        <app-ui-button
+          variant="secondary"
+          type="button"
+          [compact]="true"
+          testId="agent-leave-chat"
+          (clicked)="leaveChat()"
+        >
+          Leave chat
+        </app-ui-button>
+        <app-ui-button
+          variant="secondary"
+          type="button"
+          [compact]="true"
+          testId="agent-close-chat"
+          (clicked)="closeChat()"
+        >
+          Close chat
+        </app-ui-button>
+      </div>
+    }
   }
 
-  @if (showStompDebug()) {
-    <p class="stomp-debug" data-testid="stomp-status">STOMP: {{ stomp.status() }}</p>
-  }
+  <app-ui-modal
+    [open]="closeChatConfirmOpen()"
+    (openChange)="closeChatConfirmOpen.set($event)"
+    actionLayout="confirm"
+    title="Close this chat?"
+    cancelLabel="Cancel"
+    confirmLabel="Close chat"
+    testId="agent-close-chat-confirm"
+    (confirmed)="onCloseChatConfirmed()"
+  >
+    <p class="agent-chat-confirm-copy">
+      The customer will not be able to send new messages in this conversation.
+    </p>
+  </app-ui-modal>
 </div>

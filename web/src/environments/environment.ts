@@ -3,4 +3,6 @@ export const environment = {
   production: true,
   apiBaseUrl: 'http://localhost:8080',
   wsUrl: 'http://localhost:8080',
+  /** Client-side max length for chat message input (align with API if applicable). */
+  maxChatMessageChars: 1000,
 } as const;

@@ -7,6 +7,7 @@ public record ChatSummaryResponse(
         UUID chatId,
         String status,
         UUID clientId,
+        String clientUsername,
         UUID agentId,
         LocalDateTime createdAt,
         LocalDateTime updatedAt) {}

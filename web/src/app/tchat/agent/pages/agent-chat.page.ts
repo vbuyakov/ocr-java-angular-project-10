@@ -1,24 +1,32 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   ChangeDetectionStrategy,
   Component,
   computed,
   DestroyRef,
+  effect,
+  ElementRef,
   inject,
   input,
   OnInit,
   signal,
+  viewChild,
 } from '@angular/core';
 
 import { AuthService } from '@app/auth/auth.service';
 import { APP_SETTINGS } from '@app/core/config/app-settings';
+import { ChatDateTimePipe } from '@app/core/pipes/chat-datetime.pipe';
 import { UiAlertComponent } from '@app/core/ui/alert/ui-alert.component';
 import { UiButtonComponent } from '@app/core/ui/button/ui-button.component';
+import { UiModalComponent } from '@app/core/ui/modal/ui-modal.component';
 import { debounceLeadingEdge } from '@app/core/util/debounce';
+import { formatChatDateTime } from '@app/core/util/format-chat-datetime';
+import { scrollChatThreadToBottom } from '@app/core/util/scroll-thread';
 import { ChatStompService } from '@app/core/websocket/chat-stomp.service';
-import type { ChatMessageDto } from '@app/tchat/models/chat-rest.models';
+import type { ChatMessageDto, ChatMessagesResponse, ChatSummaryResponse } from '@app/tchat/models/chat-rest.models';
 import { parseChatStompErrorPayload, parseChatTopicPayload } from '@app/tchat/models/ws-events';
+import { buildChatMessageRows, type ChatMessageRow } from '@app/tchat/util/chat-message-rows';
 
 import { AgentChatApiService } from '../services/agent-chat.api.service';
 
@@ -29,22 +37,21 @@ const ATTACH_RETRY_MS = 450;
 @Component({
   selector: 'app-agent-chat-page',
   standalone: true,
-  imports: [RouterLink, UiAlertComponent, UiButtonComponent],
+  imports: [RouterLink, UiAlertComponent, UiButtonComponent, UiModalComponent, ChatDateTimePipe],
   templateUrl: './agent-chat.page.html',
-  styleUrl: './agent-chat.page.css',
+  styleUrls: ['./agent-chat.page.css', '../../styles/chat-bubbles.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AgentChatPageComponent implements OnInit {
   readonly chatId = input.required<string>();
 
-  private readonly settings = inject(APP_SETTINGS);
+  private readonly appSettings = inject(APP_SETTINGS);
   private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly api = inject(AgentChatApiService);
   protected readonly stomp = inject(ChatStompService);
-  private readonly auth = inject(AuthService);
-
-  protected readonly showStompDebug = computed(() => !this.settings.production);
+  protected readonly auth = inject(AuthService);
 
   protected readonly phase = signal<'loading' | 'active' | 'need-claim' | 'forbidden'>('loading');
   protected readonly loadError = signal<string | null>(null);
@@ -53,22 +60,53 @@ export class AgentChatPageComponent implements OnInit {
   protected readonly draft = signal('');
   protected readonly sending = signal(false);
   protected readonly claiming = signal(false);
-  protected readonly typingPeer = signal(false);
+  protected readonly typingPeerLabel = signal<string | null>(null);
   protected readonly chatClosed = signal(false);
+  private readonly chatMeta = signal<{ clientUsername: string; chatCreatedAt: string } | null>(null);
+
+  protected readonly messageRows = computed<ChatMessageRow[]>(() => buildChatMessageRows(this.messages()));
+
+  protected readonly chatClientHeadline = computed(() => {
+    const m = this.chatMeta();
+    if (!m) {
+      return null;
+    }
+    return `${m.clientUsername} - ${formatChatDateTime(m.chatCreatedAt)}`;
+  });
+
+  protected readonly composeCharsRemaining = computed(
+    () => this.appSettings.maxChatMessageChars - this.draft().length,
+  );
+
+  protected readonly sendDisabled = computed(
+    () =>
+      this.sending() ||
+      this.draft().trim().length === 0 ||
+      this.draft().length > this.appSettings.maxChatMessageChars,
+  );
+
+  private readonly chatMsgList = viewChild<ElementRef<HTMLElement>>('chatMsgList');
 
   private topicUnsub: (() => void) | undefined;
   private errorsUnsub: (() => void) | undefined;
   private remoteTypingClear: ReturnType<typeof setTimeout> | undefined;
   private autoClaimed = false;
 
+  protected readonly closeChatConfirmOpen = signal(false);
+
   private readonly scheduleTypingStomp = debounceLeadingEdge(TYPING_DEBOUNCE_MS, () => {
     const id = this.chatId();
-    if (id) {
-      this.stomp.publishJson('/app/chat.typing', { chatId: id });
+    if (!id || this.draft().trim().length === 0) {
+      return;
     }
+    this.stomp.publishJson('/app/chat.typing', { chatId: id });
   });
 
   constructor() {
+    effect(() => {
+      this.messages();
+      scrollChatThreadToBottom(this.chatMsgList()?.nativeElement);
+    });
     this.destroyRef.onDestroy(() => {
       this.unbindStomp();
       if (this.remoteTypingClear !== undefined) {
@@ -77,10 +115,32 @@ export class AgentChatPageComponent implements OnInit {
     });
   }
 
+  protected get maxMessageChars(): number {
+    return this.appSettings.maxChatMessageChars;
+  }
+
   ngOnInit(): void {
     this.stomp.connect();
+    this.loadChatHeadline();
     const autoClaim = this.route.snapshot.queryParamMap.get('claim') === '1';
     this.loadMessages(autoClaim);
+  }
+
+  private loadChatHeadline(): void {
+    this.api.getChatSummary(this.chatId()).subscribe({
+      next: (s) => this.applyHeadlineFromSummary(s),
+      error: () => {
+        /* headline optional if request fails */
+      },
+    });
+  }
+
+  private applyHeadlineFromSummary(s: ChatSummaryResponse): void {
+    const u = s.clientUsername?.trim();
+    const c = s.createdAt;
+    if (u && c) {
+      this.chatMeta.set({ clientUsername: u, chatCreatedAt: c });
+    }
   }
 
   protected onDraftInput(event: Event): void {
@@ -89,6 +149,17 @@ export class AgentChatPageComponent implements OnInit {
     if (v.trim().length > 0) {
       this.scheduleTypingStomp();
     }
+  }
+
+  protected onComposeKeydown(event: KeyboardEvent): void {
+    if (event.key !== 'Enter' || event.shiftKey) {
+      return;
+    }
+    event.preventDefault();
+    if (this.sendDisabled()) {
+      return;
+    }
+    this.sendMessage();
   }
 
   protected claimChat(): void {
@@ -100,7 +171,11 @@ export class AgentChatPageComponent implements OnInit {
 
   protected sendMessage(): void {
     const id = this.chatId();
-    const content = this.draft().trim();
+    const raw = this.draft();
+    if (raw.length > this.appSettings.maxChatMessageChars) {
+      return;
+    }
+    const content = raw.trim();
     if (!id || !content || this.chatClosed()) {
       return;
     }
@@ -120,7 +195,23 @@ export class AgentChatPageComponent implements OnInit {
     if (!id || this.chatClosed()) {
       return;
     }
+    this.closeChatConfirmOpen.set(true);
+  }
+
+  protected onCloseChatConfirmed(): void {
+    const id = this.chatId();
+    if (!id || this.chatClosed()) {
+      return;
+    }
     this.stomp.publishJson('/app/chat.close', { chatId: id });
+  }
+
+  protected leaveChat(): void {
+    const id = this.chatId();
+    if (!id || this.chatClosed()) {
+      return;
+    }
+    this.stomp.publishJson('/app/chat.detach', { chatId: id });
   }
 
   private loadMessages(tryAutoClaim: boolean): void {
@@ -128,7 +219,7 @@ export class AgentChatPageComponent implements OnInit {
     this.loadError.set(null);
     this.api.getMessages(this.chatId()).subscribe({
       next: (res) => {
-        this.messages.set(sortChronological(res.messages));
+        this.applyMessagesResponse(res);
         this.phase.set('active');
         this.bindStomp();
       },
@@ -166,7 +257,7 @@ export class AgentChatPageComponent implements OnInit {
         this.api.getMessages(this.chatId()).subscribe({
           next: (res) => {
             this.claiming.set(false);
-            this.messages.set(sortChronological(res.messages));
+            this.applyMessagesResponse(res);
             this.phase.set('active');
             this.bindStomp();
           },
@@ -199,6 +290,9 @@ export class AgentChatPageComponent implements OnInit {
     const selfId = this.auth.profile()?.id;
     switch (ev.type) {
       case 'MESSAGE_CREATED':
+        if (selfId === undefined || ev.message.senderId !== selfId) {
+          this.clearRemoteTypingIndicator();
+        }
         this.messages.update((list) => {
           if (list.some((m) => m.id === ev.message.id)) {
             return list;
@@ -223,17 +317,31 @@ export class AgentChatPageComponent implements OnInit {
           this.chatClosed.set(true);
         }
         break;
+      case 'USER_LEFT':
+        if (selfId !== undefined && ev.userId === selfId) {
+          void this.router.navigate(['/agent']);
+        }
+        break;
+      case 'TYPING_STOPPED':
+        if (selfId !== undefined && ev.userId === selfId) {
+          break;
+        }
+        this.clearRemoteTypingIndicator();
+        break;
       case 'TYPING':
         if (selfId !== undefined && ev.userId === selfId) {
           break;
         }
-        this.typingPeer.set(true);
+        {
+          const label =
+            ev.username?.trim() || this.findUsernameForSender(ev.userId) || 'Someone';
+          this.typingPeerLabel.set(label);
+        }
         if (this.remoteTypingClear !== undefined) {
           clearTimeout(this.remoteTypingClear);
         }
         this.remoteTypingClear = setTimeout(() => {
-          this.remoteTypingClear = undefined;
-          this.typingPeer.set(false);
+          this.clearRemoteTypingIndicator();
         }, REMOTE_TYPING_HIDE_MS);
         break;
       default:
@@ -250,6 +358,27 @@ export class AgentChatPageComponent implements OnInit {
         this.phase.set('forbidden');
       }
     }
+  }
+
+  private clearRemoteTypingIndicator(): void {
+    if (this.remoteTypingClear !== undefined) {
+      clearTimeout(this.remoteTypingClear);
+      this.remoteTypingClear = undefined;
+    }
+    this.typingPeerLabel.set(null);
+  }
+
+  private applyMessagesResponse(res: ChatMessagesResponse): void {
+    this.messages.set(sortChronological(res.messages));
+    const u = res.clientUsername?.trim();
+    const c = res.chatCreatedAt;
+    if (u && c) {
+      this.chatMeta.set({ clientUsername: u, chatCreatedAt: c });
+    }
+  }
+
+  private findUsernameForSender(userId: string): string | undefined {
+    return this.messages().find((m) => m.senderId === userId)?.senderUsername;
   }
 
   private httpErrorMessage(err: unknown): string {

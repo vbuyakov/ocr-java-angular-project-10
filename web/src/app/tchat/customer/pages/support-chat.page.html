@@ -34,17 +34,29 @@
       <label class="support-chat-label" for="chat-initial-message">Message</label>
       <textarea
         id="chat-initial-message"
-        class="support-chat-textarea"
-        rows="3"
+        class="support-chat-textarea support-chat-textarea--start"
+        rows="6"
         data-testid="chat-initial-message"
         [value]="initialDraft()"
         (input)="onInitialInput($event)"
+        (keydown)="onInitialKeydown($event)"
       ></textarea>
+      <p
+        class="support-chat-char-counter"
+        [class.support-chat-char-counter-warn]="initialDraft().length > maxMessageChars"
+        data-testid="chat-initial-counter"
+      >
+        {{ initialCharsRemaining() }} characters remaining (max {{ maxMessageChars }}).
+      </p>
       <app-ui-button
         variant="primary"
         type="button"
         testId="chat-start-submit"
-        [disabled]="submittingStart() || initialDraft().trim().length === 0"
+        [disabled]="
+          submittingStart() ||
+          initialDraft().trim().length === 0 ||
+          initialDraft().length > maxMessageChars
+        "
         (clicked)="startChat()"
       >
         @if (submittingStart()) {
@@ -58,41 +70,80 @@
 
   @if (phase() === 'active' && chatId(); as cid) {
     <div class="support-chat-thread card" data-testid="support-chat-thread">
-      <div class="support-chat-messages" data-testid="chat-message-list">
-        @for (m of messages(); track m.id) {
-          <div class="support-chat-msg" data-testid="chat-message" [attr.data-message-id]="m.id">
-            <div class="support-chat-msg-meta">
-              <span class="support-chat-msg-author">{{ m.senderUsername }}</span>
-              <span class="support-chat-msg-time">{{ m.createdAt }}</span>
-              @if (m.edited) {
-                <span class="support-chat-msg-edited">(edited)</span>
-              }
-            </div>
-            <p class="support-chat-msg-body">{{ m.content }}</p>
-          </div>
-        } @empty {
-          <p class="page-hint" data-testid="chat-message-empty">No messages yet.</p>
+      <div class="chat-thread-pane">
+        <div #chatMsgList class="chat-msg-list" data-testid="chat-message-list">
+          @for (row of messageRows(); track row.message.id) {
+            @if (row.message.senderId === auth.profile()?.id) {
+              <div
+                class="chat-msg-row chat-msg-row--out"
+                [class.chat-msg-row--tight]="!row.isFirstInGroup"
+                [class.chat-msg-row--loose]="row.isFirstInGroup"
+                data-testid="chat-message"
+                [attr.data-message-id]="row.message.id"
+              >
+                <div class="chat-bubble chat-bubble--out">
+                  <div class="chat-bubble-name">Me</div>
+                  <p class="chat-bubble-body">{{ row.message.content }}</p>
+                  <div class="chat-bubble-footer">
+                    <span>{{ row.message.createdAt | chatDateTime }}</span>
+                    @if (row.message.edited) {
+                      <span class="chat-bubble-edited">edited</span>
+                    }
+                  </div>
+                </div>
+              </div>
+            } @else {
+              <div
+                class="chat-msg-row chat-msg-row--in"
+                [class.chat-msg-row--tight]="!row.isFirstInGroup"
+                [class.chat-msg-row--loose]="row.isFirstInGroup"
+                data-testid="chat-message"
+                [attr.data-message-id]="row.message.id"
+              >
+                <div class="chat-bubble chat-bubble--in">
+                  <div class="chat-bubble-name">{{ row.message.senderUsername }}</div>
+                  <p class="chat-bubble-body">{{ row.message.content }}</p>
+                  <div class="chat-bubble-footer">
+                    <span>{{ row.message.createdAt | chatDateTime }}</span>
+                    @if (row.message.edited) {
+                      <span class="chat-bubble-edited">edited</span>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+          } @empty {
+            <p class="page-hint chat-thread-empty-hint" data-testid="chat-message-empty">No messages yet.</p>
+          }
+        </div>
+        @if (typingPeerLabel(); as who) {
+          <p class="chat-typing-line" data-testid="chat-typing-indicator">{{ who }} is typing…</p>
         }
       </div>
-      @if (typingPeer()) {
-        <p class="support-chat-typing" data-testid="chat-typing-indicator">Someone is typing…</p>
-      }
       @if (!chatClosed()) {
         <div class="support-chat-compose">
           <label class="support-chat-label" for="chat-compose-input">Your message</label>
           <textarea
             id="chat-compose-input"
             class="support-chat-textarea"
-            rows="2"
+            rows="4"
             data-testid="chat-compose-input"
             [value]="draft()"
             (input)="onDraftInput($event)"
+            (keydown)="onComposeKeydown($event)"
           ></textarea>
+          <p
+            class="support-chat-char-counter"
+            [class.support-chat-char-counter-warn]="draft().length > maxMessageChars"
+            data-testid="chat-compose-counter"
+          >
+            {{ composeCharsRemaining() }} characters remaining (max {{ maxMessageChars }}).
+          </p>
           <app-ui-button
             variant="primary"
             type="button"
             testId="chat-send"
-            [disabled]="sending() || draft().trim().length === 0"
+            [disabled]="sendDisabled()"
             (clicked)="sendMessage()"
           >
             Send
@@ -100,9 +151,5 @@
         </div>
       }
     </div>
-  }
-
-  @if (showStompDebug()) {
-    <p class="stomp-debug" data-testid="stomp-status">STOMP: {{ stomp.status() }}</p>
   }
 </div>

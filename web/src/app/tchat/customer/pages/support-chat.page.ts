@@ -4,21 +4,27 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
+  ElementRef,
   inject,
   OnInit,
   signal,
+  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 
 import { AuthService } from '@app/auth/auth.service';
+import { ChatDateTimePipe } from '@app/core/pipes/chat-datetime.pipe';
 import { APP_SETTINGS } from '@app/core/config/app-settings';
 import { UiAlertComponent } from '@app/core/ui/alert/ui-alert.component';
 import { UiButtonComponent } from '@app/core/ui/button/ui-button.component';
 import { debounceLeadingEdge } from '@app/core/util/debounce';
+import { scrollChatThreadToBottom } from '@app/core/util/scroll-thread';
 import { ChatStompService } from '@app/core/websocket/chat-stomp.service';
 import type { ChatMessageDto } from '@app/tchat/models/chat-rest.models';
 import { parseChatStompErrorPayload, parseChatTopicPayload } from '@app/tchat/models/ws-events';
+import { buildChatMessageRows, type ChatMessageRow } from '@app/tchat/util/chat-message-rows';
 
 import { CustomerChatApiService } from '../services/customer-chat.api.service';
 
@@ -28,9 +34,9 @@ const REMOTE_TYPING_HIDE_MS = 2800;
 @Component({
   selector: 'app-support-chat-page',
   standalone: true,
-  imports: [RouterLink, UiAlertComponent, UiButtonComponent],
+  imports: [RouterLink, UiAlertComponent, UiButtonComponent, ChatDateTimePipe],
   templateUrl: './support-chat.page.html',
-  styleUrl: './support-chat.page.css',
+  styleUrls: ['./support-chat.page.css', '../../styles/chat-bubbles.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SupportChatPageComponent implements OnInit {
@@ -38,9 +44,7 @@ export class SupportChatPageComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly api = inject(CustomerChatApiService);
   protected readonly stomp = inject(ChatStompService);
-  private readonly auth = inject(AuthService);
-
-  protected readonly showStompDebug = computed(() => !this.settings.production);
+  protected readonly auth = inject(AuthService);
 
   protected readonly phase = signal<'loading' | 'need-start' | 'active' | 'error'>('loading');
   protected readonly loadError = signal<string | null>(null);
@@ -51,26 +55,54 @@ export class SupportChatPageComponent implements OnInit {
   protected readonly draft = signal('');
   protected readonly submittingStart = signal(false);
   protected readonly sending = signal(false);
-  protected readonly typingPeer = signal(false);
+  protected readonly typingPeerLabel = signal<string | null>(null);
   protected readonly chatClosed = signal(false);
+
+  protected readonly messageRows = computed<ChatMessageRow[]>(() => buildChatMessageRows(this.messages()));
+
+  protected readonly composeCharsRemaining = computed(
+    () => this.maxMessageChars - this.draft().length,
+  );
+
+  protected readonly initialCharsRemaining = computed(
+    () => this.maxMessageChars - this.initialDraft().length,
+  );
+
+  protected readonly sendDisabled = computed(
+    () =>
+      this.sending() ||
+      this.draft().trim().length === 0 ||
+      this.draft().length > this.maxMessageChars,
+  );
+
+  private readonly chatMsgList = viewChild<ElementRef<HTMLElement>>('chatMsgList');
 
   private topicUnsub: (() => void) | undefined;
   private errorsUnsub: (() => void) | undefined;
   private remoteTypingClear: ReturnType<typeof setTimeout> | undefined;
   private readonly scheduleTypingStomp = debounceLeadingEdge(TYPING_DEBOUNCE_MS, () => {
     const id = this.chatId();
-    if (id) {
-      this.stomp.publishJson('/app/chat.typing', { chatId: id });
+    if (!id || this.draft().trim().length === 0) {
+      return;
     }
+    this.stomp.publishJson('/app/chat.typing', { chatId: id });
   });
 
   constructor() {
+    effect(() => {
+      this.messages();
+      scrollChatThreadToBottom(this.chatMsgList()?.nativeElement);
+    });
     this.destroyRef.onDestroy(() => {
       this.unbindStomp();
       if (this.remoteTypingClear !== undefined) {
         clearTimeout(this.remoteTypingClear);
       }
     });
+  }
+
+  protected get maxMessageChars(): number {
+    return this.settings.maxChatMessageChars;
   }
 
   ngOnInit(): void {
@@ -108,8 +140,38 @@ export class SupportChatPageComponent implements OnInit {
     }
   }
 
+  protected onComposeKeydown(event: KeyboardEvent): void {
+    if (event.key !== 'Enter' || event.shiftKey) {
+      return;
+    }
+    event.preventDefault();
+    if (this.sendDisabled()) {
+      return;
+    }
+    this.sendMessage();
+  }
+
+  protected onInitialKeydown(event: KeyboardEvent): void {
+    if (event.key !== 'Enter' || event.shiftKey) {
+      return;
+    }
+    event.preventDefault();
+    if (
+      this.submittingStart() ||
+      this.initialDraft().trim().length === 0 ||
+      this.initialDraft().length > this.maxMessageChars
+    ) {
+      return;
+    }
+    this.startChat();
+  }
+
   protected startChat(): void {
-    const text = this.initialDraft().trim();
+    const raw = this.initialDraft();
+    if (raw.length > this.maxMessageChars) {
+      return;
+    }
+    const text = raw.trim();
     if (!text) {
       return;
     }
@@ -135,7 +197,11 @@ export class SupportChatPageComponent implements OnInit {
 
   protected sendMessage(): void {
     const id = this.chatId();
-    const content = this.draft().trim();
+    const raw = this.draft();
+    if (raw.length > this.maxMessageChars) {
+      return;
+    }
+    const content = raw.trim();
     if (!id || !content) {
       return;
     }
@@ -183,6 +249,9 @@ export class SupportChatPageComponent implements OnInit {
     const selfId = this.auth.profile()?.id;
     switch (ev.type) {
       case 'MESSAGE_CREATED':
+        if (selfId === undefined || ev.message.senderId !== selfId) {
+          this.clearRemoteTypingIndicator();
+        }
         this.messages.update((list) => {
           if (list.some((m) => m.id === ev.message.id)) {
             return list;
@@ -207,17 +276,26 @@ export class SupportChatPageComponent implements OnInit {
           this.chatClosed.set(true);
         }
         break;
+      case 'TYPING_STOPPED':
+        if (selfId !== undefined && ev.userId === selfId) {
+          break;
+        }
+        this.clearRemoteTypingIndicator();
+        break;
       case 'TYPING':
         if (selfId !== undefined && ev.userId === selfId) {
           break;
         }
-        this.typingPeer.set(true);
+        {
+          const label =
+            ev.username?.trim() || this.findUsernameForSender(ev.userId) || 'Someone';
+          this.typingPeerLabel.set(label);
+        }
         if (this.remoteTypingClear !== undefined) {
           clearTimeout(this.remoteTypingClear);
         }
         this.remoteTypingClear = setTimeout(() => {
-          this.remoteTypingClear = undefined;
-          this.typingPeer.set(false);
+          this.clearRemoteTypingIndicator();
         }, REMOTE_TYPING_HIDE_MS);
         break;
       default:
@@ -230,6 +308,18 @@ export class SupportChatPageComponent implements OnInit {
     if (err) {
       this.stompError.set(err.message);
     }
+  }
+
+  private clearRemoteTypingIndicator(): void {
+    if (this.remoteTypingClear !== undefined) {
+      clearTimeout(this.remoteTypingClear);
+      this.remoteTypingClear = undefined;
+    }
+    this.typingPeerLabel.set(null);
+  }
+
+  private findUsernameForSender(userId: string): string | undefined {
+    return this.messages().find((m) => m.senderId === userId)?.senderUsername;
   }
 
   private httpErrorMessage(err: unknown): string {

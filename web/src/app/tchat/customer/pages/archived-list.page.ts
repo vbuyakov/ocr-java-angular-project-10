@@ -13,6 +13,7 @@ import { RouterLink } from '@angular/router';
 import { UiAlertComponent } from '@app/core/ui/alert/ui-alert.component';
 
 import type { ChatSummaryResponse } from '@app/tchat/models/chat-rest.models';
+import { formatChatListLine } from '@app/tchat/util/chat-list-label';
 
 import { CustomerChatApiService } from '../services/customer-chat.api.service';
 
@@ -31,6 +32,8 @@ export class ArchivedListPageComponent implements OnInit {
   protected readonly items = signal<ChatSummaryResponse[]>([]);
   protected readonly loadError = signal<string | null>(null);
   protected readonly loading = signal(true);
+
+  protected readonly chatListLine = formatChatListLine;
 
   ngOnInit(): void {
     this.api

@@ -1,6 +1,8 @@
 package com.ycyw.api.tchat.web.rest;
 
+import com.ycyw.api.tchat.dto.AgentInboxBucketCountsResponse;
 import com.ycyw.api.tchat.dto.ChatListResponse;
+import com.ycyw.api.tchat.dto.ChatSummaryResponse;
 import com.ycyw.api.tchat.model.AgentChatBucket;
 import com.ycyw.api.tchat.service.ChatService;
 import com.ycyw.api.user.model.User;
@@ -9,9 +11,12 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.UUID;
 
 /**
  * Agent chat lists: {@code GET /api/agent/chats?bucket=NEW_REQUESTS|MY_ACTIVE|OTHERS_ACTIVE|ARCHIVED}
@@ -34,5 +39,17 @@ public class AgentChatRestController {
             @RequestParam AgentChatBucket bucket,
             @PageableDefault(size = 50) Pageable pageable) {
         return chatService.listChatsForAgent(user.getId(), bucket, pageable);
+    }
+
+    @GetMapping("/bucket-counts")
+    @PreAuthorize("hasRole('AGENT')")
+    public AgentInboxBucketCountsResponse getInboxBucketCountsForAgent(@AuthenticationPrincipal User user) {
+        return chatService.getInboxBucketCountsForAgent(user.getId());
+    }
+
+    @GetMapping("/{chatId}")
+    @PreAuthorize("hasRole('AGENT')")
+    public ChatSummaryResponse getSummaryForAgent(@PathVariable UUID chatId) {
+        return chatService.getChatSummaryForAgent(chatId);
     }
 }

@@ -22,15 +22,10 @@
             data-testid="agent-archived-row"
             [attr.data-chat-id]="c.chatId"
           >
-            <span class="agent-archived-row-id">{{ c.chatId }}</span>
-            <span class="agent-archived-row-meta">{{ c.updatedAt }}</span>
+            <span class="agent-archived-row-line">{{ chatListLine(c) }}</span>
           </a>
         </li>
       }
     </ul>
-  }
-
-  @if (showStompDebug()) {
-    <p class="stomp-debug" data-testid="stomp-status">STOMP: {{ stomp.status() }}</p>
   }
 </div>

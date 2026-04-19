@@ -45,9 +45,16 @@ public final class ChatWsEvents {
         }
     }
 
-    public record Typing(String type, UUID chatId, UUID userId) {
-        public static Typing of(UUID chatId, UUID userId) {
-            return new Typing("TYPING", chatId, userId);
+    public record Typing(String type, UUID chatId, UUID userId, String username) {
+        public static Typing of(UUID chatId, UUID userId, String username) {
+            return new Typing("TYPING", chatId, userId, username);
+        }
+    }
+
+    /** Published when a user stops typing implicitly (e.g. after sending a message). */
+    public record TypingStopped(String type, UUID chatId, UUID userId) {
+        public static TypingStopped of(UUID chatId, UUID userId) {
+            return new TypingStopped("TYPING_STOPPED", chatId, userId);
         }
     }
 

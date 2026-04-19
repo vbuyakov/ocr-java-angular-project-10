@@ -95,6 +95,7 @@ class ChatServiceTest {
         verify(chatMessageRepository).flush();
         verify(chatRealtimeEventPublisher)
                 .publishMessageCreated(eq(chatId), eq(clientMessageId), any(ChatMessageResponse.class));
+        verify(chatRealtimeEventPublisher).publishTypingStopped(chatId, clientId);
     }
 
     @Test
@@ -210,9 +211,9 @@ class ChatServiceTest {
     void recordTypingIndicator_publishesTyping() {
         doNothing().when(chatAccessService).validateParticipant(chatId, clientId);
 
-        chatService.recordTypingIndicator(chatId, clientId);
+        chatService.recordTypingIndicator(chatId, clientUser);
 
-        verify(chatRealtimeEventPublisher).publishTyping(chatId, clientId);
+        verify(chatRealtimeEventPublisher).publishTyping(chatId, clientId, clientUser.getUsername());
     }
 
     @Test

@@ -20,6 +20,7 @@ public final class ChatMapper {
                 chat.getId(),
                 chat.getStatus().name(),
                 chat.getClient().getId(),
+                chat.getClient().getUsername(),
                 chat.getAgent() != null ? chat.getAgent().getId() : null,
                 chat.getCreatedAt(),
                 chat.getUpdatedAt());

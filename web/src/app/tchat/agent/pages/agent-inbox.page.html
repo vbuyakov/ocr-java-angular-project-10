@@ -15,7 +15,12 @@
         role="tab"
         (click)="selectBucket(b)"
       >
-        {{ b === 'NEW_REQUESTS' ? 'New requests' : b === 'MY_ACTIVE' ? 'My active' : 'Others active' }}
+        <span class="agent-bucket-tab-text">{{
+          b === 'NEW_REQUESTS' ? 'New requests' : b === 'MY_ACTIVE' ? 'My active' : 'Others active'
+        }}</span>
+        @if (bucketBadgeCount(b); as count) {
+          <span class="agent-bucket-badge" [attr.data-testid]="'agent-bucket-count-' + b">{{ count }}</span>
+        }
       </button>
     }
   </div>
@@ -40,21 +45,17 @@
               data-testid="agent-inbox-row"
               [attr.data-chat-id]="c.chatId"
             >
-              <span class="agent-inbox-row-id">{{ c.chatId }}</span>
-              <span class="agent-inbox-row-meta">{{ c.status }} · {{ c.updatedAt }}</span>
+              <span class="agent-inbox-row-line">{{ chatListLine(c) }}</span>
+              <span class="agent-inbox-row-meta">{{ c.status }}</span>
             </a>
           } @else {
             <div class="agent-inbox-row agent-inbox-row-static" data-testid="agent-inbox-row-static">
-              <span class="agent-inbox-row-id">{{ c.chatId }}</span>
-              <span class="agent-inbox-row-meta">{{ c.status }} · {{ c.updatedAt }} (other agent)</span>
+              <span class="agent-inbox-row-line">{{ chatListLine(c) }}</span>
+              <span class="agent-inbox-row-meta">{{ c.status }} · other agent</span>
             </div>
           }
         </li>
       }
     </ul>
-  }
-
-  @if (showStompDebug()) {
-    <p class="stomp-debug" data-testid="stomp-status">STOMP: {{ stomp.status() }}</p>
   }
 </div>

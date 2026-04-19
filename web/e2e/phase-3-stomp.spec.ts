@@ -19,8 +19,8 @@ async function login(page: Page, username: string, password: string): Promise<vo
   await page.getByTestId('login-submit').click();
 }
 
-test.describe('Phase 3 — STOMP', () => {
-  test('agent inbox shows STOMP connected when API is up', async ({ page, request }) => {
+test.describe('Phase 3 — post-login routes', () => {
+  test('agent inbox loads when API is up', async ({ page, request }) => {
     if (!(await isApiReachable(request))) {
       test.skip();
     }
@@ -30,10 +30,10 @@ test.describe('Phase 3 — STOMP', () => {
 
     await login(page, username, password);
     await expect(page).toHaveURL(/\/agent$/);
-    await expect(page.getByTestId('stomp-status')).toContainText('connected', { timeout: 20_000 });
+    await expect(page.getByTestId('agent-inbox-heading')).toBeVisible({ timeout: 20_000 });
   });
 
-  test('support chat shows STOMP connected when API is up', async ({ page, request }) => {
+  test('support chat loads when API is up', async ({ page, request }) => {
     if (!(await isApiReachable(request))) {
       test.skip();
     }
@@ -43,6 +43,6 @@ test.describe('Phase 3 — STOMP', () => {
 
     await login(page, username, password);
     await expect(page).toHaveURL(/\/support\/chat$/);
-    await expect(page.getByTestId('stomp-status')).toContainText('connected', { timeout: 20_000 });
+    await expect(page.getByTestId('support-chat-heading')).toBeVisible({ timeout: 20_000 });
   });
 });

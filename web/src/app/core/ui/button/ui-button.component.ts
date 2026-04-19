@@ -13,6 +13,8 @@ export class UiButtonComponent {
   readonly variant = input<UiButtonVariant>('primary');
   readonly disabled = input(false);
   readonly type = input<HTMLButtonElement['type']>('button');
+  /** Smaller padding and text (toolbar / secondary actions). */
+  readonly compact = input(false);
   /** Optional `data-testid` for tests; defaults to `ui-button`. */
   readonly testId = input<string>('ui-button');
 
@@ -20,13 +22,15 @@ export class UiButtonComponent {
 
   protected readonly buttonClass = computed(() => {
     const v = this.variant();
+    let base: string;
     if (v === 'primary') {
-      return 'btn-primary';
+      base = 'btn-primary';
+    } else if (v === 'secondary') {
+      base = 'btn-secondary';
+    } else {
+      base = 'btn-outline';
     }
-    if (v === 'secondary') {
-      return 'btn-secondary';
-    }
-    return 'btn-outline';
+    return this.compact() ? `${base} btn-compact` : base;
   });
 
   protected onClick(): void {

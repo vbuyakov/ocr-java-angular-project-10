@@ -1,0 +1,90 @@
+@reference "../../../styles.css";
+
+/* Thread area: white canvas; bubble colors are separate */
+.chat-thread-pane {
+  @apply rounded-xl border border-[var(--color-border)] bg-white p-3 sm:p-4;
+}
+
+.chat-msg-list {
+  @apply flex max-h-[min(28rem,50vh)] flex-col gap-0 overflow-y-auto pr-1;
+}
+
+.chat-msg-row {
+  @apply flex w-full;
+}
+
+.chat-msg-row--in {
+  @apply justify-start;
+}
+
+.chat-msg-row--out {
+  @apply justify-end;
+}
+
+.chat-msg-row--in.chat-msg-row--tight {
+  @apply mt-0.5;
+}
+
+.chat-msg-row--in.chat-msg-row--loose {
+  @apply mt-3;
+}
+
+.chat-msg-row--out.chat-msg-row--tight {
+  @apply mt-0.5;
+}
+
+.chat-msg-row--out.chat-msg-row--loose {
+  @apply mt-3;
+}
+
+.chat-bubble {
+  @apply max-w-[min(85%,28rem)] rounded-[0.9rem] px-3 py-2 shadow-sm;
+}
+
+.chat-bubble--in {
+  @apply border border-[var(--color-border)] bg-[#e8eef5] text-[var(--color-text)];
+}
+
+.chat-bubble--out {
+  @apply border border-[#4a8fd9]/40 bg-[#5b9ce8] text-white;
+}
+
+.chat-bubble-name {
+  @apply mb-0.5 text-sm font-medium text-[#0d9488];
+}
+
+.chat-bubble--out .chat-bubble-name {
+  @apply text-white/90;
+}
+
+.chat-bubble-body {
+  @apply whitespace-pre-wrap text-sm leading-snug;
+}
+
+.chat-bubble-footer {
+  @apply mt-1 flex items-center justify-end gap-1 text-[0.7rem];
+}
+
+.chat-bubble--in .chat-bubble-footer {
+  @apply text-[var(--color-text-muted)];
+}
+
+.chat-bubble--out .chat-bubble-footer {
+  @apply text-white/90;
+}
+
+.chat-bubble-edited {
+  @apply ml-1 opacity-80;
+}
+
+.chat-typing-line {
+  @apply px-1 text-xs italic text-[var(--color-text-muted)];
+}
+
+.chat-thread-pane .chat-typing-line {
+  @apply text-[var(--color-text-muted)];
+}
+
+.chat-thread-empty-hint {
+  @apply text-[var(--color-text-muted)];
+}

@@ -116,7 +116,9 @@ class SupportChatE2eTest {
                         .headers(h -> h.setBearerAuth(agentJwt))
                         .retrieve()
                         .body(ChatListResponse.class);
-        assertThat(newRequests.items()).anyMatch(s -> s.chatId().equals(chatId));
+        assertThat(newRequests.items())
+                .anyMatch(
+                        s -> s.chatId().equals(chatId) && "e2e-client".equals(s.clientUsername()));
 
         assertThatThrownBy(
                         () ->

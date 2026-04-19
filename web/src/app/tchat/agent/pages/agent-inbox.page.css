@@ -25,7 +25,16 @@
 }
 
 .agent-bucket-tab {
-  @apply rounded-md px-3 py-2 text-sm font-medium text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-surface)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-bs-primary)] focus-visible:ring-offset-2;
+  @apply inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-surface)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-bs-primary)] focus-visible:ring-offset-2;
+}
+
+.agent-bucket-tab-text {
+  @apply shrink-0 leading-none;
+}
+
+/* Bootstrap-like .badge.text-bg-secondary */
+.agent-bucket-badge {
+  @apply box-border inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-[#6c757d] px-1.5 text-[0.6875rem] font-semibold tabular-nums leading-none text-white;
 }
 
 .agent-bucket-tab-active {
@@ -44,8 +53,8 @@
   @apply cursor-default opacity-90;
 }
 
-.agent-inbox-row-id {
-  @apply font-mono text-xs text-[var(--color-text-muted)];
+.agent-inbox-row-line {
+  @apply font-medium text-[var(--color-text)];
 }
 
 .agent-inbox-row-meta {
@@ -54,8 +63,4 @@
 
 .agent-inbox-error {
   @apply text-red-600;
-}
-
-.stomp-debug {
-  @apply mt-4 text-xs text-[var(--color-text-muted)];
 }

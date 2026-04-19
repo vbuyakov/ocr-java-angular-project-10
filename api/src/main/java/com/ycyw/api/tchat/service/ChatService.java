@@ -5,6 +5,7 @@ import com.ycyw.api.common.exception.ResourceNotFoundException;
 import com.ycyw.api.common.exception.WrongParametersException;
 import com.ycyw.api.tchat.exception.ChatClosedException;
 import com.ycyw.api.tchat.dto.ActiveChatResponse;
+import com.ycyw.api.tchat.dto.AgentInboxBucketCountsResponse;
 import com.ycyw.api.tchat.dto.ChatListResponse;
 import com.ycyw.api.tchat.dto.ChatMapper;
 import com.ycyw.api.tchat.dto.ChatMessagesResponse;
@@ -17,6 +18,7 @@ import com.ycyw.api.tchat.model.ChatStatus;
 import com.ycyw.api.tchat.repository.ChatMessageRepository;
 import com.ycyw.api.tchat.repository.ChatRepository;
 import com.ycyw.api.user.model.Role;
+import com.ycyw.api.user.model.User;
 import com.ycyw.api.user.repository.UserRepository;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.data.domain.Page;
@@ -125,9 +127,29 @@ public class ChatService {
     }
 
     @Transactional(readOnly = true)
+    public AgentInboxBucketCountsResponse getInboxBucketCountsForAgent(UUID agentId) {
+        long newRequests = chatRepository.countByStatusAndAgentIsNull(ChatStatus.NEW);
+        long myActive = chatRepository.countByStatusAndAgent_Id(ChatStatus.ACTIVE, agentId);
+        return new AgentInboxBucketCountsResponse(newRequests, myActive);
+    }
+
+    /**
+     * Chat list row fields for agent UI (header) without loading messages. Any authenticated agent may
+     * read this for an existing chat (same visibility as inbox lists).
+     */
+    @Transactional(readOnly = true)
+    public ChatSummaryResponse getChatSummaryForAgent(UUID chatId) {
+        Chat chat = chatRepository
+                .findWithParticipantsById(chatId)
+                .orElseThrow(() -> new ResourceNotFoundException("Chat not found"));
+        return ChatMapper.toSummary(chat);
+    }
+
+    @Transactional(readOnly = true)
     public ChatMessagesResponse getMessages(
             UUID chatId, UUID userId, int limit, UUID beforeMessageId, UUID afterMessageId) {
         chatAccessService.validateParticipant(chatId, userId);
+        Chat chat = chatRepository.findById(chatId).orElseThrow(() -> new ResourceNotFoundException("Chat not found"));
 
         int capped = clampLimit(limit);
 
@@ -140,16 +162,16 @@ public class ChatService {
             ChatMessage cursor = loadMessageFromChat(chatId, beforeMessageId);
             Page<ChatMessage> page = chatMessageRepository.findByChat_IdAndCreatedAtBeforeOrderByCreatedAtDesc(
                     chatId, cursor.getCreatedAt(), pageable);
-            return slicePageToResponse(page, capped, true);
+            return slicePageToResponse(chat, page, capped, true);
         }
         if (afterMessageId != null) {
             ChatMessage cursor = loadMessageFromChat(chatId, afterMessageId);
             Page<ChatMessage> page = chatMessageRepository.findByChat_IdAndCreatedAtAfterOrderByCreatedAtAsc(
                     chatId, cursor.getCreatedAt(), pageable);
-            return slicePageToResponse(page, capped, false);
+            return slicePageToResponse(chat, page, capped, false);
         }
         Page<ChatMessage> page = chatMessageRepository.findByChat_IdOrderByCreatedAtDesc(chatId, pageable);
-        return slicePageToResponse(page, capped, true);
+        return slicePageToResponse(chat, page, capped, true);
     }
 
     private static ChatListResponse convertPageToChatListResponse(Page<Chat> page) {
@@ -173,7 +195,7 @@ public class ChatService {
      * API returns oldest→newest. Ascending pages ({@code after} cursor) need no reverse.
      */
     private static ChatMessagesResponse slicePageToResponse(
-            Page<ChatMessage> page, int limit, boolean reverseToChronological) {
+            Chat chat, Page<ChatMessage> page, int limit, boolean reverseToChronological) {
         List<ChatMessage> content = new ArrayList<>(page.getContent());
         boolean hasMore = content.size() > limit;
         if (hasMore) {
@@ -182,7 +204,11 @@ public class ChatService {
         if (reverseToChronological) {
             Collections.reverse(content);
         }
-        return new ChatMessagesResponse(content.stream().map(ChatMapper::toMessage).toList(), hasMore);
+        return new ChatMessagesResponse(
+                content.stream().map(ChatMapper::toMessage).toList(),
+                hasMore,
+                chat.getClient().getUsername(),
+                chat.getCreatedAt());
     }
 
     /**
@@ -215,6 +241,7 @@ public class ChatService {
         chatMessageRepository.flush();
 
         chatRealtimeEventPublisher.publishMessageCreated(chatId, clientMessageId, ChatMapper.toMessage(message));
+        chatRealtimeEventPublisher.publishTypingStopped(chatId, senderId);
     }
 
     @Transactional
@@ -316,9 +343,9 @@ public class ChatService {
     }
 
     @Transactional(readOnly = true)
-    public void recordTypingIndicator(UUID chatId, UUID userId) {
-        chatAccessService.validateParticipant(chatId, userId);
-        chatRealtimeEventPublisher.publishTyping(chatId, userId);
+    public void recordTypingIndicator(UUID chatId, User user) {
+        chatAccessService.validateParticipant(chatId, user.getId());
+        chatRealtimeEventPublisher.publishTyping(chatId, user.getId(), user.getUsername());
     }
 
     private static void assertChatOpenForMutation(Chat chat) {

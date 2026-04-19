@@ -28,18 +28,10 @@
   @apply flex flex-col gap-1 rounded-lg border border-[var(--color-border)] bg-white px-4 py-3 text-left text-sm shadow-sm transition-colors hover:bg-[var(--color-surface)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-bs-primary)] focus-visible:ring-offset-2 sm:flex-row sm:items-center sm:justify-between;
 }
 
-.agent-archived-row-id {
-  @apply font-mono text-xs text-[var(--color-text-muted)];
-}
-
-.agent-archived-row-meta {
-  @apply text-xs text-[var(--color-text-muted)];
+.agent-archived-row-line {
+  @apply font-medium text-[var(--color-text)];
 }
 
 .agent-archived-error {
   @apply text-red-600;
-}
-
-.stomp-debug {
-  @apply mt-4 text-xs text-[var(--color-text-muted)];
 }

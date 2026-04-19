@@ -32,4 +32,5 @@ export class DevUiPageComponent {
   protected selectedTabId = 'a';
   protected demoInputValue = '';
   protected modalOpen = false;
+  protected confirmModalOpen = false;
 }

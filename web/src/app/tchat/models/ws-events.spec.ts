@@ -50,6 +50,34 @@ describe('parseChatTopicPayload', () => {
   it('returns null for unknown type', () => {
     expect(parseChatTopicPayload(JSON.stringify({ type: 'UNKNOWN' }))).toBeNull();
   });
+
+  it('parses TYPING with username', () => {
+    const json = JSON.stringify({
+      type: 'TYPING',
+      chatId: '550e8400-e29b-41d4-a716-446655440000',
+      userId: '8ba7b810-9dad-11d1-80b4-00c04fd430c8',
+      username: 'agent1',
+    });
+    expect(parseChatTopicPayload(json)).toEqual({
+      type: 'TYPING',
+      chatId: '550e8400-e29b-41d4-a716-446655440000',
+      userId: '8ba7b810-9dad-11d1-80b4-00c04fd430c8',
+      username: 'agent1',
+    });
+  });
+
+  it('parses TYPING_STOPPED', () => {
+    const json = JSON.stringify({
+      type: 'TYPING_STOPPED',
+      chatId: '550e8400-e29b-41d4-a716-446655440000',
+      userId: '8ba7b810-9dad-11d1-80b4-00c04fd430c8',
+    });
+    expect(parseChatTopicPayload(json)).toEqual({
+      type: 'TYPING_STOPPED',
+      chatId: '550e8400-e29b-41d4-a716-446655440000',
+      userId: '8ba7b810-9dad-11d1-80b4-00c04fd430c8',
+    });
+  });
 });
 
 describe('parseChatListUpdatedPayload', () => {

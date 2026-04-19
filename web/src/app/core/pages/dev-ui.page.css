@@ -1,33 +1,50 @@
 @reference "../../../styles.css";
 
 .dev-ui {
-  @apply container mx-auto max-w-3xl space-y-10 px-4 py-8;
+  @apply container mx-auto max-w-4xl px-4 py-10;
+}
+
+.dev-ui-header {
+  @apply mb-10 border-b border-[var(--color-border)] pb-8;
 }
 
 .dev-ui-title {
-  @apply text-2xl font-bold text-[var(--color-text)];
+  @apply text-2xl font-semibold tracking-tight text-[var(--color-text)];
 }
 
 .dev-ui-lead {
-  @apply text-sm text-[var(--color-text-muted)];
+  @apply mt-2 max-w-2xl text-sm leading-relaxed text-[var(--color-text-muted)];
 }
 
-.dev-ui-section {
-  @apply space-y-3;
+.dev-ui-panels {
+  @apply grid gap-5 sm:grid-cols-2;
 }
 
-.dev-ui-section-title {
-  @apply text-base font-semibold text-[var(--color-text)];
+.dev-ui-panel {
+  @apply flex flex-col gap-4 rounded-xl border border-[var(--color-border)] bg-white p-5 shadow-sm;
+}
+
+.dev-ui-panel--wide {
+  @apply sm:col-span-2;
+}
+
+.dev-ui-panel-title {
+  @apply text-sm font-semibold uppercase tracking-wide text-[var(--color-text-muted)];
 }
 
 .dev-ui-row {
   @apply flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center;
 }
 
-.dev-ui-stack {
-  @apply flex flex-col gap-2;
+.dev-ui-alert-grid {
+  @apply grid gap-3 sm:grid-cols-2;
 }
 
 .dev-ui-tab-panel {
-  @apply mt-3 rounded-md border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] p-3 text-sm text-[var(--color-text-muted)];
+  @apply rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 text-sm text-[var(--color-text)];
+}
+
+.dev-ui-card-copy,
+.dev-ui-modal-copy {
+  @apply m-0 text-sm leading-relaxed text-[var(--color-text-muted)];
 }
