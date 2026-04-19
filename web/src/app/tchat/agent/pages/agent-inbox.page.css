@@ -1,0 +1,61 @@
+@reference "../../../../styles.css";
+
+.page {
+  @apply container mx-auto px-4 py-8;
+}
+
+.page-title {
+  @apply text-xl font-semibold text-[var(--color-text)];
+}
+
+.page-hint {
+  @apply mt-2 text-sm text-[var(--color-text-muted)];
+}
+
+.agent-inbox-head {
+  @apply flex flex-wrap items-end justify-between gap-3;
+}
+
+.agent-inbox-link {
+  @apply text-sm font-medium text-[var(--color-bs-primary)] underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-bs-primary)] focus-visible:ring-offset-2 rounded;
+}
+
+.agent-bucket-tabs {
+  @apply mt-6 flex flex-wrap gap-2 border-b border-[var(--color-border)] pb-2;
+}
+
+.agent-bucket-tab {
+  @apply rounded-md px-3 py-2 text-sm font-medium text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-surface)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-bs-primary)] focus-visible:ring-offset-2;
+}
+
+.agent-bucket-tab-active {
+  @apply bg-[var(--color-bs-primary)]/10 text-[var(--color-text)];
+}
+
+.agent-inbox-list {
+  @apply mt-6 list-none space-y-2 p-0;
+}
+
+.agent-inbox-row {
+  @apply flex flex-col gap-1 rounded-lg border border-[var(--color-border)] bg-white px-4 py-3 text-left text-sm shadow-sm transition-colors hover:bg-[var(--color-surface)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-bs-primary)] focus-visible:ring-offset-2 sm:flex-row sm:items-center sm:justify-between;
+}
+
+.agent-inbox-row-static {
+  @apply cursor-default opacity-90;
+}
+
+.agent-inbox-row-id {
+  @apply font-mono text-xs text-[var(--color-text-muted)];
+}
+
+.agent-inbox-row-meta {
+  @apply text-xs text-[var(--color-text-muted)];
+}
+
+.agent-inbox-error {
+  @apply text-red-600;
+}
+
+.stomp-debug {
+  @apply mt-4 text-xs text-[var(--color-text-muted)];
+}

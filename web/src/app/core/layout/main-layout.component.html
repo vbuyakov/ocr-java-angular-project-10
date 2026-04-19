@@ -23,6 +23,7 @@
           }
           @if (auth.role() === 'AGENT') {
             <a routerLink="/agent" class="app-nav-link" data-testid="nav-agent-inbox">Inbox</a>
+            <a routerLink="/agent/archived" class="app-nav-link" data-testid="nav-agent-archived">Archived</a>
           }
           <button type="button" class="app-nav-logout" data-testid="nav-logout" (click)="auth.logout()">
             Sign out

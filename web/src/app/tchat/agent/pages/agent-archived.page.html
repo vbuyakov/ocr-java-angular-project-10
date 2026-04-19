@@ -1,0 +1,36 @@
+<div class="page agent-archived">
+  <div class="agent-archived-head">
+    <h1 class="page-title" data-testid="agent-archived-heading">Archived chats</h1>
+    <a routerLink="/agent" class="agent-archived-link" data-testid="nav-agent-inbox">Back to inbox</a>
+  </div>
+
+  @if (loadError(); as err) {
+    <p class="page-hint agent-archived-error" data-testid="agent-archived-error">{{ err }}</p>
+  }
+
+  @if (loading()) {
+    <p class="page-hint" data-testid="agent-archived-loading">Loading…</p>
+  } @else if (items().length === 0) {
+    <p class="page-hint" data-testid="agent-archived-empty">No archived chats.</p>
+  } @else {
+    <ul class="agent-archived-list" data-testid="agent-archived-list">
+      @for (c of items(); track c.chatId) {
+        <li>
+          <a
+            class="agent-archived-row"
+            [routerLink]="['/agent/chat', c.chatId]"
+            data-testid="agent-archived-row"
+            [attr.data-chat-id]="c.chatId"
+          >
+            <span class="agent-archived-row-id">{{ c.chatId }}</span>
+            <span class="agent-archived-row-meta">{{ c.updatedAt }}</span>
+          </a>
+        </li>
+      }
+    </ul>
+  }
+
+  @if (showStompDebug()) {
+    <p class="stomp-debug" data-testid="stomp-status">STOMP: {{ stomp.status() }}</p>
+  }
+</div>

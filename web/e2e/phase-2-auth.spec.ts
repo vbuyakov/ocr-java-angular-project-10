@@ -58,7 +58,7 @@ test.describe('Phase 2 — auth', () => {
     await page.getByTestId('login-submit').click();
 
     await expect(page).toHaveURL(/\/agent$/);
-    await expect(page.getByTestId('agent-home-heading')).toBeVisible();
+    await expect(page.getByTestId('agent-inbox-heading')).toBeVisible();
   });
 
   test('shows error on invalid credentials when API is available', async ({ page, request }) => {

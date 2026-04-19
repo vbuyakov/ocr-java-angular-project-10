@@ -1,0 +1,60 @@
+<div class="page agent-inbox">
+  <div class="agent-inbox-head">
+    <h1 class="page-title" data-testid="agent-inbox-heading">Agent inbox</h1>
+    <a routerLink="/agent/archived" class="agent-inbox-link" data-testid="agent-inbox-archived-link">Archived</a>
+  </div>
+
+  <div class="agent-bucket-tabs" data-testid="agent-bucket-tabs" role="tablist" aria-label="Inbox buckets">
+    @for (b of buckets; track b) {
+      <button
+        type="button"
+        class="agent-bucket-tab"
+        [class.agent-bucket-tab-active]="bucket() === b"
+        [attr.data-testid]="'agent-bucket-' + b"
+        [attr.aria-selected]="bucket() === b"
+        role="tab"
+        (click)="selectBucket(b)"
+      >
+        {{ b === 'NEW_REQUESTS' ? 'New requests' : b === 'MY_ACTIVE' ? 'My active' : 'Others active' }}
+      </button>
+    }
+  </div>
+
+  @if (loadError(); as err) {
+    <p class="page-hint agent-inbox-error" data-testid="agent-inbox-error">{{ err }}</p>
+  }
+
+  @if (loading()) {
+    <p class="page-hint" data-testid="agent-inbox-loading">Loading…</p>
+  } @else if (items().length === 0) {
+    <p class="page-hint" data-testid="agent-inbox-empty">No chats in this bucket.</p>
+  } @else {
+    <ul class="agent-inbox-list" data-testid="agent-inbox-list">
+      @for (c of items(); track c.chatId) {
+        <li>
+          @if (rowLinkable()) {
+            <a
+              class="agent-inbox-row"
+              [routerLink]="['/agent/chat', c.chatId]"
+              [queryParams]="bucket() === 'NEW_REQUESTS' ? { claim: '1' } : {}"
+              data-testid="agent-inbox-row"
+              [attr.data-chat-id]="c.chatId"
+            >
+              <span class="agent-inbox-row-id">{{ c.chatId }}</span>
+              <span class="agent-inbox-row-meta">{{ c.status }} · {{ c.updatedAt }}</span>
+            </a>
+          } @else {
+            <div class="agent-inbox-row agent-inbox-row-static" data-testid="agent-inbox-row-static">
+              <span class="agent-inbox-row-id">{{ c.chatId }}</span>
+              <span class="agent-inbox-row-meta">{{ c.status }} · {{ c.updatedAt }} (other agent)</span>
+            </div>
+          }
+        </li>
+      }
+    </ul>
+  }
+
+  @if (showStompDebug()) {
+    <p class="stomp-debug" data-testid="stomp-status">STOMP: {{ stomp.status() }}</p>
+  }
+</div>

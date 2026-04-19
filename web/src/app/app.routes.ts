@@ -40,7 +40,19 @@ export const routes: Routes = [
         path: 'agent',
         canActivate: [authGuard, agentRoleGuard],
         loadComponent: () =>
-          import('@app/tchat/agent/pages/agent-home.page').then((m) => m.AgentHomePageComponent),
+          import('@app/tchat/agent/pages/agent-inbox.page').then((m) => m.AgentInboxPageComponent),
+      },
+      {
+        path: 'agent/archived',
+        canActivate: [authGuard, agentRoleGuard],
+        loadComponent: () =>
+          import('@app/tchat/agent/pages/agent-archived.page').then((m) => m.AgentArchivedPageComponent),
+      },
+      {
+        path: 'agent/chat/:chatId',
+        canActivate: [authGuard, agentRoleGuard],
+        loadComponent: () =>
+          import('@app/tchat/agent/pages/agent-chat.page').then((m) => m.AgentChatPageComponent),
       },
       {
         path: 'dev/ui',

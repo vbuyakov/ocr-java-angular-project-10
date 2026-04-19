@@ -19,7 +19,7 @@ todos:
     status: completed
   - id: fe-phase-5-agent-workbench
     content: "Phase 5: Agent feature — bucket tabs (REST), /user/queue/chats, chat detail, attach/send/edit/delete/close"
-    status: pending
+    status: completed
   - id: fe-phase-6-responsive-qa
     content: "Phase 6: Mobile/tablet/desktop polish, a11y pass, Vitest + key component tests + Playwright viewport/a11y suite"
     status: pending
