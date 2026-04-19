@@ -1,0 +1,17 @@
+@reference "../../../../styles.css";
+
+:host {
+  display: block;
+}
+
+.ui-input-root {
+  @apply flex w-full flex-col gap-1;
+}
+
+.ui-input-label {
+  @apply text-sm font-medium text-[var(--color-text)];
+}
+
+.ui-input-control {
+  @apply min-h-11 w-full min-w-0 rounded-md border border-[var(--color-border)] bg-white px-3 py-2 text-sm text-[var(--color-text)] shadow-sm placeholder:text-[var(--color-text-muted)] focus-visible:border-[var(--color-brand-blue)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-blue)]/30 disabled:cursor-not-allowed disabled:bg-[var(--color-surface)] disabled:opacity-70;
+}

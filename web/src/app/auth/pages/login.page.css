@@ -1,0 +1,17 @@
+@reference "../../../styles.css";
+
+.login-page {
+  @apply container mx-auto px-4 py-12;
+}
+
+.login-card {
+  @apply mx-auto max-w-md p-6;
+}
+
+.login-title {
+  @apply text-xl font-semibold text-[var(--color-text)];
+}
+
+.login-hint {
+  @apply mt-2 text-sm text-[var(--color-text-muted)];
+}

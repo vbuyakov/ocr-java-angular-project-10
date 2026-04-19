@@ -1,0 +1,15 @@
+<div class="ui-input-root">
+  @if (label()) {
+    <label class="ui-input-label" [attr.for]="controlId()">{{ label() }}</label>
+  }
+  <input
+    [attr.id]="controlId()"
+    [attr.data-testid]="testId()"
+    class="ui-input-control"
+    [type]="inputType()"
+    [placeholder]="placeholder()"
+    [attr.autocomplete]="autocomplete() ?? null"
+    [disabled]="disabled()"
+    [(ngModel)]="value"
+  />
+</div>

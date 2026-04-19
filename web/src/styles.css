@@ -1,0 +1,35 @@
+/* You can add global styles to this file, and also import other style files */
+
+@import 'tailwindcss';
+
+@theme {
+  /* Brand — logo reds / blues */
+  --color-brand-red: #e31837;
+  --color-brand-blue: #1e6bd8;
+  --color-text: #171717;
+  --color-text-muted: #525252;
+  --color-border: #e5e5e5;
+  --color-surface: #fafafa;
+}
+
+@layer components {
+  .card {
+    @apply rounded-lg border border-[var(--color-border)] bg-white shadow-sm;
+  }
+
+  .btn {
+    @apply inline-flex min-h-11 items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-blue)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  .btn-primary {
+    @apply inline-flex min-h-11 items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-blue)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[var(--color-brand-red)] text-white hover:opacity-90;
+  }
+
+  .btn-secondary {
+    @apply inline-flex min-h-11 items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-blue)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[var(--color-border)] bg-white text-[var(--color-text)] hover:bg-[var(--color-surface)];
+  }
+
+  .btn-outline {
+    @apply inline-flex min-h-11 min-w-[2.75rem] items-center justify-center rounded-md border-2 border-[var(--color-brand-blue)] bg-transparent px-4 py-2 text-sm font-medium text-[var(--color-brand-blue)] transition-colors hover:bg-[var(--color-brand-blue)]/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-blue)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+  }
+}

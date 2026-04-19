@@ -1,0 +1,42 @@
+<div class="login-page">
+  <div class="login-card card">
+    <h1 class="login-title">Sign in</h1>
+    <p class="login-lead">Use your support username or email.</p>
+
+    @if (errorMessage(); as err) {
+      <app-ui-alert variant="danger" [message]="err" testId="login-error" />
+    }
+
+    <form class="login-form" (submit)="$event.preventDefault(); submit()">
+      <app-ui-input
+        label="Username or email"
+        placeholder="e.g. cust1"
+        autocomplete="username"
+        testId="login-username"
+        [value]="username()"
+        (valueChange)="onUsername($event)"
+      />
+      <app-ui-input
+        label="Password"
+        placeholder="Password"
+        inputType="password"
+        autocomplete="current-password"
+        testId="login-password"
+        [value]="password()"
+        (valueChange)="onPassword($event)"
+      />
+      <app-ui-button
+        variant="primary"
+        type="submit"
+        testId="login-submit"
+        [disabled]="submitting()"
+      >
+        @if (submitting()) {
+          Signing in…
+        } @else {
+          Sign in
+        }
+      </app-ui-button>
+    </form>
+  </div>
+</div>

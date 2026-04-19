@@ -1,0 +1,15 @@
+<div [attr.data-testid]="testId()" class="ui-tabs" role="tablist" aria-orientation="horizontal">
+  @for (tab of tabs(); track tab.id) {
+    <button
+      type="button"
+      class="ui-tab"
+      role="tab"
+      [attr.aria-selected]="selectedId() === tab.id"
+      [attr.data-testid]="testId() + '-tab-' + tab.id"
+      [class.ui-tab-active]="selectedId() === tab.id"
+      (click)="selectTab(tab.id)"
+    >
+      {{ tab.label }}
+    </button>
+  }
+</div>

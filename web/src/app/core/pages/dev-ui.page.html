@@ -1,0 +1,62 @@
+<div class="dev-ui" data-testid="dev-ui-kit">
+  <h1 class="dev-ui-title">UI kit (dev)</h1>
+  <p class="dev-ui-lead">Bootstrap-style primitives built with Tailwind — Phase 1.</p>
+
+  <section class="dev-ui-section" aria-label="Buttons">
+    <h2 class="dev-ui-section-title">Buttons</h2>
+    <div class="dev-ui-row">
+      <app-ui-button variant="primary" testId="demo-primary-button">Primary</app-ui-button>
+      <app-ui-button variant="secondary" testId="demo-secondary-button">Secondary</app-ui-button>
+      <app-ui-button variant="outline" testId="demo-outline-button">Outline</app-ui-button>
+    </div>
+  </section>
+
+  <section class="dev-ui-section" aria-label="Input">
+    <h2 class="dev-ui-section-title">Input</h2>
+    <app-ui-input
+      label="Label"
+      placeholder="Type here…"
+      testId="demo-input"
+      [(value)]="demoInputValue"
+    />
+  </section>
+
+  <section class="dev-ui-section" aria-label="Card">
+    <h2 class="dev-ui-section-title">Card</h2>
+    <app-ui-card title="Card title" testId="demo-card">
+      <p>Card body content with responsive layout (stacks on small screens).</p>
+    </app-ui-card>
+  </section>
+
+  <section class="dev-ui-section" aria-label="Alerts">
+    <h2 class="dev-ui-section-title">Alerts</h2>
+    <div class="dev-ui-stack">
+      <app-ui-alert variant="info" message="Informational message." testId="demo-alert-info" />
+      <app-ui-alert variant="success" message="Success state." testId="demo-alert-success" />
+      <app-ui-alert variant="warning" message="Warning state." testId="demo-alert-warning" />
+      <app-ui-alert variant="danger" message="Danger state." testId="demo-alert-danger" />
+    </div>
+  </section>
+
+  <section class="dev-ui-section" aria-label="Tabs">
+    <h2 class="dev-ui-section-title">Tabs</h2>
+    <app-ui-tabs [tabs]="demoTabs" [(selectedId)]="selectedTabId" testId="demo-tabs" />
+    <p class="dev-ui-tab-panel" data-testid="demo-tab-panel">
+      @if (selectedTabId === 'a') {
+        Content for Tab A
+      } @else {
+        Content for Tab B
+      }
+    </p>
+  </section>
+
+  <section class="dev-ui-section" aria-label="Modal">
+    <h2 class="dev-ui-section-title">Modal</h2>
+    <app-ui-button variant="primary" testId="demo-modal-open" (clicked)="modalOpen = true">
+      Open modal
+    </app-ui-button>
+    <app-ui-modal [(open)]="modalOpen" title="Example modal" testId="demo-modal">
+      <p>Modal body — backdrop click closes.</p>
+    </app-ui-modal>
+  </section>
+</div>

@@ -1,0 +1,33 @@
+@reference "../../../styles.css";
+
+.dev-ui {
+  @apply container mx-auto max-w-3xl space-y-10 px-4 py-8;
+}
+
+.dev-ui-title {
+  @apply text-2xl font-bold text-[var(--color-text)];
+}
+
+.dev-ui-lead {
+  @apply text-sm text-[var(--color-text-muted)];
+}
+
+.dev-ui-section {
+  @apply space-y-3;
+}
+
+.dev-ui-section-title {
+  @apply text-base font-semibold text-[var(--color-text)];
+}
+
+.dev-ui-row {
+  @apply flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center;
+}
+
+.dev-ui-stack {
+  @apply flex flex-col gap-2;
+}
+
+.dev-ui-tab-panel {
+  @apply mt-3 rounded-md border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] p-3 text-sm text-[var(--color-text-muted)];
+}

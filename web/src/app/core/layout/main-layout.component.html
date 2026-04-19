@@ -1,0 +1,38 @@
+<div class="app-shell">
+  <header class="app-header" data-testid="app-header">
+    <div class="app-header-inner">
+      <a [routerLink]="brandLink()" class="app-brand" aria-label="Home">
+        <img
+          data-testid="app-logo"
+          src="/brand/ycyw-logo.png"
+          alt="Your Car Your Way"
+          width="160"
+          height="80"
+          class="app-logo-img"
+        />
+      </a>
+      <nav class="app-nav" aria-label="Main">
+        @if (showDevNav()) {
+          <a routerLink="/dev/ui" class="app-nav-link" data-testid="nav-dev-ui">UI kit</a>
+        }
+        @if (auth.isAuthenticated()) {
+          <span class="app-nav-user" data-testid="nav-username">{{ auth.profile()?.username }}</span>
+          @if (auth.role() === 'CLIENT') {
+            <a routerLink="/support/chat" class="app-nav-link" data-testid="nav-support-chat">Chat</a>
+          }
+          @if (auth.role() === 'AGENT') {
+            <a routerLink="/agent" class="app-nav-link" data-testid="nav-agent-inbox">Inbox</a>
+          }
+          <button type="button" class="app-nav-logout" data-testid="nav-logout" (click)="auth.logout()">
+            Sign out
+          </button>
+        } @else {
+          <a routerLink="/login" class="app-nav-link" data-testid="nav-login">Sign in</a>
+        }
+      </nav>
+    </div>
+  </header>
+  <main class="app-main">
+    <router-outlet />
+  </main>
+</div>

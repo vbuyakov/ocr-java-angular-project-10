@@ -1,0 +1,9 @@
+<button
+  [attr.data-testid]="testId()"
+  [attr.type]="type()"
+  [disabled]="disabled()"
+  [class]="buttonClass()"
+  (click)="onClick()"
+>
+  <ng-content />
+</button>

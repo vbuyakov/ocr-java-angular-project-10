@@ -1,0 +1,21 @@
+@reference "../../../../styles.css";
+
+.ui-alert {
+  @apply rounded-md border px-3 py-2 text-sm;
+}
+
+.ui-alert-info {
+  @apply border-[var(--color-brand-blue)]/40 bg-[var(--color-brand-blue)]/10 text-[var(--color-text)];
+}
+
+.ui-alert-success {
+  @apply border-emerald-600/40 bg-emerald-50 text-emerald-900;
+}
+
+.ui-alert-warning {
+  @apply border-amber-500/50 bg-amber-50 text-amber-950;
+}
+
+.ui-alert-danger {
+  @apply border-[var(--color-brand-red)]/50 bg-red-50 text-red-950;
+}

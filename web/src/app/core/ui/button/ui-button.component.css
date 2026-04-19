@@ -1,0 +1,9 @@
+@reference "../../../../styles.css";
+
+:host {
+  display: inline-block;
+}
+
+button {
+  @apply w-full sm:w-auto;
+}

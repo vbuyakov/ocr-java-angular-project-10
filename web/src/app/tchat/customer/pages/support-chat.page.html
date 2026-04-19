@@ -1,0 +1,7 @@
+<div class="page">
+  <h1 class="page-title" data-testid="support-chat-heading">Support chat</h1>
+  <p class="page-hint">Live chat UI will be implemented in Phase 4.</p>
+  @if (showStompDebug()) {
+    <p class="stomp-debug" data-testid="stomp-status">STOMP: {{ stomp.status() }}</p>
+  }
+</div>

@@ -17,6 +17,8 @@ import java.util.UUID;
 
 /**
  * Authenticates the WebSocket handshake using the same JWT as REST: {@code Authorization: Bearer …}.
+ * <p>Browser {@code sockjs-client} cannot attach HTTP headers to the SockJS handshake, so the token may
+ * also be passed as the {@code access_token} query parameter (same-origin dev and TLS in production).
  */
 @Component
 public class ChatWebSocketJwtHandshakeInterceptor implements HandshakeInterceptor {
@@ -71,6 +73,12 @@ public class ChatWebSocketJwtHandshakeInterceptor implements HandshakeIntercepto
         String auth = request.getHeaders().getFirst("Authorization");
         if (auth != null && auth.startsWith("Bearer ")) {
             return auth.substring(7).trim();
+        }
+        if (request instanceof ServletServerHttpRequest servletRequest) {
+            String fromQuery = servletRequest.getServletRequest().getParameter("access_token");
+            if (fromQuery != null && !fromQuery.isBlank()) {
+                return fromQuery.trim();
+            }
         }
         return null;
     }

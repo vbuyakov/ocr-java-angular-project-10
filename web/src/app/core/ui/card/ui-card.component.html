@@ -1,0 +1,10 @@
+<section [attr.data-testid]="testId()" class="ui-card">
+  @if (title()) {
+    <header class="ui-card-header">
+      <h2 class="ui-card-title">{{ title() }}</h2>
+    </header>
+  }
+  <div class="ui-card-body">
+    <ng-content />
+  </div>
+</section>

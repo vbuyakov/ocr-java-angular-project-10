@@ -1,0 +1,13 @@
+@reference "../../../../styles.css";
+
+.ui-tabs {
+  @apply flex min-h-11 flex-wrap gap-2 border-b border-[var(--color-border)] pb-2 md:flex-nowrap;
+}
+
+.ui-tab {
+  @apply rounded-t-md px-3 py-2 text-sm font-medium text-[var(--color-text-muted)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-blue)] focus-visible:ring-offset-2;
+}
+
+.ui-tab-active {
+  @apply border-b-2 border-[var(--color-brand-red)] text-[var(--color-text)];
+}

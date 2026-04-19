@@ -1,0 +1,45 @@
+@reference "../../../styles.css";
+
+:host {
+  display: block;
+}
+
+.app-shell {
+  @apply flex min-h-dvh flex-col bg-[var(--color-surface)];
+}
+
+.app-header {
+  @apply border-b border-[var(--color-border)] bg-white shadow-sm;
+}
+
+.app-header-inner {
+  @apply container mx-auto flex items-center justify-between gap-4 px-4 py-3;
+}
+
+.app-brand {
+  @apply flex items-center;
+}
+
+.app-logo-img {
+  @apply h-10 w-auto md:h-12;
+}
+
+.app-nav {
+  @apply flex gap-4 text-sm font-medium text-[var(--color-text-muted)];
+}
+
+.app-nav-link {
+  @apply transition-colors hover:text-[var(--color-brand-red)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-blue)] focus-visible:ring-offset-2 rounded;
+}
+
+.app-nav-user {
+  @apply max-w-[10rem] truncate text-xs text-[var(--color-text-muted)] sm:max-w-none sm:text-sm;
+}
+
+.app-nav-logout {
+  @apply rounded-md border border-[var(--color-border)] bg-white px-3 py-1.5 text-sm font-medium text-[var(--color-text)] transition-colors hover:bg-[var(--color-surface)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-blue)] focus-visible:ring-offset-2;
+}
+
+.app-main {
+  @apply flex-1;
+}

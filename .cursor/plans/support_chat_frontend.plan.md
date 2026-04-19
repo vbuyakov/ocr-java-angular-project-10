@@ -13,7 +13,7 @@ todos:
     status: completed
   - id: fe-phase-3-core-stomp
     content: "Phase 3: StompSession service (SockJS + STOMP, JWT connect headers), typed frame DTOs, reconnect + resubscribe"
-    status: pending
+    status: completed
   - id: fe-phase-4-customer-support
     content: "Phase 4: Customer feature — GET/POST active chat, archived list, messages, WS topic + errors queue, typing debounce"
     status: pending
