@@ -1,7 +1,9 @@
 <div class="page archived-list">
   <div class="archived-list-head">
-    <h1 class="page-title" data-testid="archived-list-heading">Archived chats</h1>
-    <a routerLink="/support/chat" class="archived-back" data-testid="nav-back-to-chat">Back to live chat</a>
+    <h1 class="page-title" data-testid="archived-list-heading">{{ 'customerArchived.listTitle' | translate }}</h1>
+    <a routerLink="/support/chat" class="archived-back" data-testid="nav-back-to-chat">{{
+      'customerArchived.backLive' | translate
+    }}</a>
   </div>
 
   @if (loadError(); as err) {
@@ -9,9 +11,9 @@
   }
 
   @if (loading()) {
-    <p class="page-hint" data-testid="archived-list-loading">Loading…</p>
+    <p class="page-hint" data-testid="archived-list-loading">{{ 'common.loading' | translate }}</p>
   } @else if (items().length === 0) {
-    <p class="page-hint" data-testid="archived-list-empty">No archived chats yet.</p>
+    <p class="page-hint" data-testid="archived-list-empty">{{ 'customerArchived.listEmpty' | translate }}</p>
   } @else {
     <ul class="archived-list-ul" data-testid="archived-list">
       @for (c of items(); track c.chatId) {

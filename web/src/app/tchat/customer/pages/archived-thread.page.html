@@ -1,16 +1,20 @@
 <div class="page archived-thread">
   <div class="archived-thread-head">
-    <h1 class="page-title" data-testid="archived-thread-heading">Archived thread</h1>
-    <a routerLink="/support/archived" class="archived-back" data-testid="archived-thread-back">Back to list</a>
+    <h1 class="page-title" data-testid="archived-thread-heading">{{ 'customerArchived.threadTitle' | translate }}</h1>
+    <a routerLink="/support/archived" class="archived-back" data-testid="archived-thread-back">{{
+      'customerArchived.backList' | translate
+    }}</a>
   </div>
-  <p class="page-hint archived-thread-id" data-testid="archived-thread-chat-id">Chat {{ chatId() }}</p>
+  <p class="page-hint archived-thread-id" data-testid="archived-thread-chat-id">
+    {{ 'customerArchived.chatIdLine' | translate: { id: chatId() } }}
+  </p>
 
   @if (loadError(); as err) {
     <app-ui-alert variant="danger" [message]="err" testId="archived-thread-error" />
   }
 
   @if (loading()) {
-    <p class="page-hint" data-testid="archived-thread-loading">Loading…</p>
+    <p class="page-hint" data-testid="archived-thread-loading">{{ 'common.loading' | translate }}</p>
   } @else {
     <div class="archived-thread-messages card" data-testid="archived-message-list">
       <div class="chat-thread-pane">
@@ -24,12 +28,12 @@
                 data-testid="archived-message"
               >
                 <div class="chat-bubble chat-bubble--out">
-                  <div class="chat-bubble-name">Me</div>
+                  <div class="chat-bubble-name">{{ 'chat.bubbleMe' | translate }}</div>
                   <p class="chat-bubble-body">{{ row.message.content }}</p>
                   <div class="chat-bubble-footer">
                     <span>{{ row.message.createdAt | chatDateTime }}</span>
                     @if (row.message.edited) {
-                      <span class="chat-bubble-edited">edited</span>
+                      <span class="chat-bubble-edited">{{ 'chat.edited' | translate }}</span>
                     }
                   </div>
                 </div>
@@ -47,14 +51,14 @@
                   <div class="chat-bubble-footer">
                     <span>{{ row.message.createdAt | chatDateTime }}</span>
                     @if (row.message.edited) {
-                      <span class="chat-bubble-edited">edited</span>
+                      <span class="chat-bubble-edited">{{ 'chat.edited' | translate }}</span>
                     }
                   </div>
                 </div>
               </div>
             }
           } @empty {
-            <p class="page-hint chat-thread-empty-hint">No messages.</p>
+            <p class="page-hint chat-thread-empty-hint">{{ 'chat.noMessages' | translate }}</p>
           }
         </div>
       </div>

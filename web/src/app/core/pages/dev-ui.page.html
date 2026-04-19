@@ -1,80 +1,87 @@
 <div class="dev-ui" data-testid="dev-ui-kit">
   <header class="dev-ui-header">
-    <h1 class="dev-ui-title">UI kit</h1>
-    <p class="dev-ui-lead">Development-only gallery of shared components (Tailwind, Bootstrap-inspired tokens).</p>
+    <h1 class="dev-ui-title">{{ 'devUi.title' | translate }}</h1>
+    <p class="dev-ui-lead">{{ 'devUi.lead' | translate }}</p>
   </header>
 
   <div class="dev-ui-panels">
     <section class="dev-ui-panel" aria-labelledby="dev-ui-buttons-heading">
-      <h2 id="dev-ui-buttons-heading" class="dev-ui-panel-title">Buttons</h2>
+      <h2 id="dev-ui-buttons-heading" class="dev-ui-panel-title">{{ 'devUi.buttons' | translate }}</h2>
       <div class="dev-ui-row">
-        <app-ui-button variant="primary" testId="demo-primary-button">Primary</app-ui-button>
-        <app-ui-button variant="secondary" testId="demo-secondary-button">Secondary</app-ui-button>
-        <app-ui-button variant="outline" testId="demo-outline-button">Outline</app-ui-button>
+        <app-ui-button variant="primary" testId="demo-primary-button">{{ 'common.primary' | translate }}</app-ui-button>
+        <app-ui-button variant="secondary" testId="demo-secondary-button">{{
+          'common.secondary' | translate
+        }}</app-ui-button>
+        <app-ui-button variant="outline" testId="demo-outline-button">{{ 'common.outline' | translate }}</app-ui-button>
       </div>
     </section>
 
     <section class="dev-ui-panel" aria-labelledby="dev-ui-input-heading">
-      <h2 id="dev-ui-input-heading" class="dev-ui-panel-title">Text field</h2>
+      <h2 id="dev-ui-input-heading" class="dev-ui-panel-title">{{ 'devUi.textField' | translate }}</h2>
       <app-ui-input
-        label="Label"
-        placeholder="Placeholder…"
+        [label]="'common.label' | translate"
+        [placeholder]="'common.placeholder' | translate"
         testId="demo-input"
         [(value)]="demoInputValue"
       />
     </section>
 
     <section class="dev-ui-panel dev-ui-panel--wide" aria-labelledby="dev-ui-card-heading">
-      <h2 id="dev-ui-card-heading" class="dev-ui-panel-title">Card</h2>
-      <app-ui-card title="Card title" testId="demo-card">
-        <p class="dev-ui-card-copy">Body content uses the same spacing and borders as production cards.</p>
+      <h2 id="dev-ui-card-heading" class="dev-ui-panel-title">{{ 'devUi.card' | translate }}</h2>
+      <app-ui-card [title]="'devUi.cardTitle' | translate" testId="demo-card">
+        <p class="dev-ui-card-copy">{{ 'devUi.cardBody' | translate }}</p>
       </app-ui-card>
     </section>
 
     <section class="dev-ui-panel dev-ui-panel--wide" aria-labelledby="dev-ui-alerts-heading">
-      <h2 id="dev-ui-alerts-heading" class="dev-ui-panel-title">Alerts</h2>
+      <h2 id="dev-ui-alerts-heading" class="dev-ui-panel-title">{{ 'devUi.alerts' | translate }}</h2>
       <div class="dev-ui-alert-grid">
-        <app-ui-alert variant="info" message="Informational message." testId="demo-alert-info" />
-        <app-ui-alert variant="success" message="Success state." testId="demo-alert-success" />
-        <app-ui-alert variant="warning" message="Warning state." testId="demo-alert-warning" />
-        <app-ui-alert variant="danger" message="Danger state." testId="demo-alert-danger" />
+        <app-ui-alert variant="info" [message]="'devUi.alertInfo' | translate" testId="demo-alert-info" />
+        <app-ui-alert variant="success" [message]="'devUi.alertSuccess' | translate" testId="demo-alert-success" />
+        <app-ui-alert variant="warning" [message]="'devUi.alertWarning' | translate" testId="demo-alert-warning" />
+        <app-ui-alert variant="danger" [message]="'devUi.alertDanger' | translate" testId="demo-alert-danger" />
       </div>
     </section>
 
     <section class="dev-ui-panel dev-ui-panel--wide" aria-labelledby="dev-ui-tabs-heading">
-      <h2 id="dev-ui-tabs-heading" class="dev-ui-panel-title">Tabs</h2>
-      <app-ui-tabs [tabs]="demoTabs" [(selectedId)]="selectedTabId" testId="demo-tabs" />
+      <h2 id="dev-ui-tabs-heading" class="dev-ui-panel-title">{{ 'devUi.tabs' | translate }}</h2>
+      <app-ui-tabs [tabs]="demoTabs()" [(selectedId)]="selectedTabId" testId="demo-tabs" />
       <div class="dev-ui-tab-panel" data-testid="demo-tab-panel" role="tabpanel">
         @if (selectedTabId === 'a') {
-          Panel for tab A.
+          {{ 'devUi.tabPanelA' | translate }}
         } @else {
-          Panel for tab B.
+          {{ 'devUi.tabPanelB' | translate }}
         }
       </div>
     </section>
 
     <section class="dev-ui-panel dev-ui-panel--wide" aria-labelledby="dev-ui-modal-heading">
-      <h2 id="dev-ui-modal-heading" class="dev-ui-panel-title">Modal</h2>
+      <h2 id="dev-ui-modal-heading" class="dev-ui-panel-title">{{ 'devUi.modal' | translate }}</h2>
       <div class="dev-ui-row">
         <app-ui-button variant="primary" testId="demo-modal-open" (clicked)="modalOpen = true">
-          Open modal
+          {{ 'devUi.openModal' | translate }}
         </app-ui-button>
         <app-ui-button variant="outline" testId="demo-confirm-modal-open" (clicked)="confirmModalOpen = true">
-          Open confirm
+          {{ 'devUi.openConfirm' | translate }}
         </app-ui-button>
       </div>
-      <app-ui-modal [(open)]="modalOpen" title="Example modal" testId="demo-modal">
-        <p class="dev-ui-modal-copy">Backdrop click closes the dialog.</p>
+      <app-ui-modal
+        [(open)]="modalOpen"
+        [title]="'devUi.exampleTitle' | translate"
+        [closeLabel]="'common.close' | translate"
+        testId="demo-modal"
+      >
+        <p class="dev-ui-modal-copy">{{ 'devUi.modalBody' | translate }}</p>
       </app-ui-modal>
       <app-ui-modal
         [(open)]="confirmModalOpen"
         actionLayout="confirm"
-        title="Confirm?"
-        cancelLabel="Cancel"
-        confirmLabel="Continue"
+        [title]="'devUi.confirmTitle' | translate"
+        [cancelLabel]="'common.cancel' | translate"
+        [confirmLabel]="'common.continue' | translate"
         testId="demo-confirm-modal"
       >
-        <p class="dev-ui-modal-copy">Backdrop or Cancel dismisses without continuing.</p>
+        <p class="dev-ui-modal-copy">{{ 'devUi.confirmBody' | translate }}</p>
       </app-ui-modal>
     </section>
   </div>

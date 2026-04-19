@@ -1,4 +1,6 @@
-import { expect, test, type APIRequestContext } from '@playwright/test';
+import { type APIRequestContext } from '@playwright/test';
+
+import { expect, test } from './fixtures';
 
 async function isApiReachable(request: APIRequestContext): Promise<boolean> {
   try {

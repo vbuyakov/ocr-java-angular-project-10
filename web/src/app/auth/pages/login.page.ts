@@ -1,21 +1,23 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 
+import { AuthService } from '@app/auth/auth.service';
+import { I18nService } from '@app/core/i18n/i18n.service';
+import { TranslatePipe } from '@app/core/i18n/translate.pipe';
 import { UiAlertComponent } from '@app/core/ui/alert/ui-alert.component';
 import { UiButtonComponent } from '@app/core/ui/button/ui-button.component';
 import { UiInputComponent } from '@app/core/ui/input/ui-input.component';
 
-import { AuthService } from '@app/auth/auth.service';
-
 @Component({
   selector: 'app-login-page',
   standalone: true,
-  imports: [UiAlertComponent, UiButtonComponent, UiInputComponent],
+  imports: [UiAlertComponent, UiButtonComponent, UiInputComponent, TranslatePipe],
   templateUrl: './login.page.html',
   styleUrl: './login.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginPageComponent {
   private readonly auth = inject(AuthService);
+  private readonly i18n = inject(I18nService);
 
   protected readonly username = signal('');
   protected readonly password = signal('');
@@ -35,7 +37,7 @@ export class LoginPageComponent {
     const u = this.username();
     const p = this.password();
     if (!u || !p) {
-      this.errorMessage.set('Enter username and password.');
+      this.errorMessage.set(this.i18n.translate('login.errorRequired'));
       return;
     }
     this.submitting.set(true);
@@ -46,7 +48,7 @@ export class LoginPageComponent {
       },
       error: () => {
         this.submitting.set(false);
-        this.errorMessage.set('Sign-in failed. Check your credentials and that the API is running.');
+        this.errorMessage.set(this.i18n.translate('login.errorFailed'));
       },
     });
   }

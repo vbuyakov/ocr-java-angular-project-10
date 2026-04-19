@@ -3,6 +3,8 @@ import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal 
 import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 
+import { I18nService } from '@app/core/i18n/i18n.service';
+import { TranslatePipe } from '@app/core/i18n/translate.pipe';
 import { ChatStompService } from '@app/core/websocket/chat-stomp.service';
 import type { AgentChatBucket } from '@app/tchat/models/agent-chat.models';
 import type { ChatSummaryResponse } from '@app/tchat/models/chat-rest.models';
@@ -16,7 +18,7 @@ const INBOX_BUCKETS: AgentChatBucket[] = ['NEW_REQUESTS', 'MY_ACTIVE', 'OTHERS_A
 @Component({
   selector: 'app-agent-inbox-page',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, TranslatePipe],
   templateUrl: './agent-inbox.page.html',
   styleUrl: './agent-inbox.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -24,6 +26,7 @@ const INBOX_BUCKETS: AgentChatBucket[] = ['NEW_REQUESTS', 'MY_ACTIVE', 'OTHERS_A
 export class AgentInboxPageComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly documentRef = inject(DOCUMENT);
+  private readonly i18n = inject(I18nService);
   private readonly api = inject(AgentChatApiService);
   protected readonly stomp = inject(ChatStompService);
 
@@ -83,6 +86,19 @@ export class AgentInboxPageComponent implements OnInit {
     return this.bucket() !== 'OTHERS_ACTIVE';
   }
 
+  protected bucketLabel(b: AgentChatBucket): string {
+    switch (b) {
+      case 'NEW_REQUESTS':
+        return this.i18n.translate('agentInbox.bucketNewRequests');
+      case 'MY_ACTIVE':
+        return this.i18n.translate('agentInbox.bucketMyActive');
+      case 'OTHERS_ACTIVE':
+        return this.i18n.translate('agentInbox.bucketOthersActive');
+      case 'ARCHIVED':
+        return this.i18n.translate('agentInbox.bucketArchived');
+    }
+  }
+
   /** Positive count for tab badge, or `null` when hidden (not loaded, wrong tab, or zero). */
   protected bucketBadgeCount(b: AgentChatBucket): number | null {
     if (!this.inboxCountsLoaded()) {
@@ -110,7 +126,7 @@ export class AgentInboxPageComponent implements OnInit {
       },
       error: () => {
         this.loading.set(false);
-        this.loadError.set('Failed to load inbox');
+        this.loadError.set(this.i18n.translate('errors.agentInboxLoad'));
       },
     });
   }

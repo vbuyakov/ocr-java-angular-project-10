@@ -1,7 +1,7 @@
 <div class="page agent-archived">
   <div class="agent-archived-head">
-    <h1 class="page-title" data-testid="agent-archived-heading">Archived chats</h1>
-    <a routerLink="/agent" class="agent-archived-link" data-testid="nav-agent-inbox">Back to inbox</a>
+    <h1 class="page-title" data-testid="agent-archived-heading">{{ 'agentArchived.title' | translate }}</h1>
+    <a routerLink="/agent" class="agent-archived-link" data-testid="nav-agent-inbox">{{ 'agentArchived.back' | translate }}</a>
   </div>
 
   @if (loadError(); as err) {
@@ -9,9 +9,9 @@
   }
 
   @if (loading()) {
-    <p class="page-hint" data-testid="agent-archived-loading">Loading…</p>
+    <p class="page-hint" data-testid="agent-archived-loading">{{ 'common.loading' | translate }}</p>
   } @else if (items().length === 0) {
-    <p class="page-hint" data-testid="agent-archived-empty">No archived chats.</p>
+    <p class="page-hint" data-testid="agent-archived-empty">{{ 'agentArchived.empty' | translate }}</p>
   } @else {
     <ul class="agent-archived-list" data-testid="agent-archived-list">
       @for (c of items(); track c.chatId) {

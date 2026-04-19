@@ -1,0 +1,127 @@
+{
+  "brand": {
+    "alt": "Your Car Your Way"
+  },
+  "common": {
+    "loading": "Chargement…",
+    "close": "Fermer",
+    "cancel": "Annuler",
+    "continue": "Continuer",
+    "primary": "Primaire",
+    "secondary": "Secondaire",
+    "outline": "Contour",
+    "label": "Libellé",
+    "placeholder": "Espace réservé…"
+  },
+  "nav": {
+    "mainAria": "Principal",
+    "homeAria": "Accueil",
+    "uiKit": "UI kit",
+    "chat": "Chat",
+    "archived": "Archives",
+    "inbox": "Boîte de réception",
+    "signOut": "Déconnexion",
+    "signIn": "Connexion"
+  },
+  "login": {
+    "title": "Connexion",
+    "lead": "Utilisez votre identifiant ou e-mail support.",
+    "usernameLabel": "Identifiant ou e-mail",
+    "usernamePlaceholder": "ex. : client1",
+    "passwordLabel": "Mot de passe",
+    "passwordPlaceholder": "Mot de passe",
+    "submit": "Se connecter",
+    "submitting": "Connexion…",
+    "errorRequired": "Saisissez l’identifiant et le mot de passe.",
+    "errorFailed": "Échec de la connexion. Vérifiez vos identifiants et que l’API est disponible."
+  },
+  "errors": {
+    "agentInboxLoad": "Impossible de charger la boîte de réception.",
+    "agentArchivedLoad": "Impossible de charger les discussions archivées.",
+    "genericLoad": "Échec du chargement."
+  },
+  "chat": {
+    "bubbleMe": "Moi",
+    "edited": "modifié",
+    "send": "Envoyer",
+    "messageLabel": "Message",
+    "yourMessage": "Votre message",
+    "noMessagesYet": "Aucun message pour l’instant.",
+    "noMessages": "Aucun message.",
+    "charsRemaining": "{{remaining}} caractères restants (max {{max}}).",
+    "typing": "{{name}} est en train d’écrire…",
+    "someone": "Quelqu’un"
+  },
+  "agentInbox": {
+    "title": "Boîte agent",
+    "bucketsAria": "Onglets de la boîte de réception",
+    "bucketNewRequests": "Nouvelles demandes",
+    "bucketMyActive": "Mes actives",
+    "bucketOthersActive": "Autres actives",
+    "bucketArchived": "Archivés",
+    "empty": "Aucune discussion dans ce filtre.",
+    "rowOtherAgent": "autre agent"
+  },
+  "agentArchived": {
+    "title": "Discussions archivées",
+    "back": "Retour à la boîte de réception",
+    "empty": "Aucune discussion archivée."
+  },
+  "agentChat": {
+    "title": "Discussion",
+    "back": "Retour à la boîte de réception",
+    "claimLead": "Prenez en charge cette demande pour lire et envoyer des messages.",
+    "claimSubmit": "Prendre en charge",
+    "claimSubmitting": "Prise en charge…",
+    "forbidden": "Vous ne pouvez pas ouvrir cette discussion.",
+    "closedBanner": "Cette discussion est clôturée (lecture seule).",
+    "leave": "Quitter la discussion",
+    "close": "Clôturer la discussion",
+    "closeConfirmTitle": "Clôturer cette discussion ?",
+    "closeConfirmAction": "Clôturer",
+    "closeConfirmBody": "Le client ne pourra plus envoyer de nouveaux messages dans cette conversation."
+  },
+  "supportChat": {
+    "title": "Assistance chat",
+    "linkArchived": "Discussions archivées",
+    "errorGeneric": "Une erreur s’est produite. Réessayez plus tard.",
+    "closedBanner": "Cette discussion est clôturée. Consultez l’historique dans Archives.",
+    "startLead": "Commencez par envoyer votre premier message au support.",
+    "startSubmit": "Démarrer la conversation",
+    "startSubmitting": "Démarrage…"
+  },
+  "customerArchived": {
+    "listTitle": "Discussions archivées",
+    "backLive": "Retour au chat en direct",
+    "listEmpty": "Pas encore de discussions archivées.",
+    "threadTitle": "Discussion archivée",
+    "backList": "Retour à la liste",
+    "chatIdLine": "Discussion {{id}}"
+  },
+  "devUi": {
+    "title": "UI kit",
+    "lead": "Galerie de composants partagés (réservée au développement, Tailwind, style proche Bootstrap).",
+    "buttons": "Boutons",
+    "textField": "Champ texte",
+    "card": "Carte",
+    "cardTitle": "Titre de la carte",
+    "cardBody": "Le corps reprend le même espacement et les bordures que les cartes en production.",
+    "alerts": "Alertes",
+    "alertInfo": "Message d’information.",
+    "alertSuccess": "État de succès.",
+    "alertWarning": "État d’avertissement.",
+    "alertDanger": "État de danger.",
+    "tabs": "Onglets",
+    "tabA": "Onglet A",
+    "tabB": "Onglet B",
+    "tabPanelA": "Panneau de l’onglet A.",
+    "tabPanelB": "Panneau de l’onglet B.",
+    "modal": "Fenêtre modale",
+    "openModal": "Ouvrir la modale",
+    "openConfirm": "Ouvrir la confirmation",
+    "exampleTitle": "Modale d’exemple",
+    "modalBody": "Un clic sur l’arrière-plan ferme la boîte de dialogue.",
+    "confirmTitle": "Confirmer ?",
+    "confirmBody": "L’arrière-plan ou Annuler ferme sans continuer."
+  }
+}

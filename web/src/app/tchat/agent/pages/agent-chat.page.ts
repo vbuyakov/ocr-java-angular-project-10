@@ -16,6 +16,8 @@ import {
 
 import { AuthService } from '@app/auth/auth.service';
 import { APP_SETTINGS } from '@app/core/config/app-settings';
+import { I18nService } from '@app/core/i18n/i18n.service';
+import { TranslatePipe } from '@app/core/i18n/translate.pipe';
 import { ChatDateTimePipe } from '@app/core/pipes/chat-datetime.pipe';
 import { UiAlertComponent } from '@app/core/ui/alert/ui-alert.component';
 import { UiButtonComponent } from '@app/core/ui/button/ui-button.component';
@@ -37,7 +39,7 @@ const ATTACH_RETRY_MS = 450;
 @Component({
   selector: 'app-agent-chat-page',
   standalone: true,
-  imports: [RouterLink, UiAlertComponent, UiButtonComponent, UiModalComponent, ChatDateTimePipe],
+  imports: [RouterLink, UiAlertComponent, UiButtonComponent, UiModalComponent, TranslatePipe, ChatDateTimePipe],
   templateUrl: './agent-chat.page.html',
   styleUrls: ['./agent-chat.page.css', '../../styles/chat-bubbles.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -52,6 +54,7 @@ export class AgentChatPageComponent implements OnInit {
   private readonly api = inject(AgentChatApiService);
   protected readonly stomp = inject(ChatStompService);
   protected readonly auth = inject(AuthService);
+  private readonly i18n = inject(I18nService);
 
   protected readonly phase = signal<'loading' | 'active' | 'need-claim' | 'forbidden'>('loading');
   protected readonly loadError = signal<string | null>(null);
@@ -334,7 +337,9 @@ export class AgentChatPageComponent implements OnInit {
         }
         {
           const label =
-            ev.username?.trim() || this.findUsernameForSender(ev.userId) || 'Someone';
+            ev.username?.trim() ||
+            this.findUsernameForSender(ev.userId) ||
+            this.i18n.translate('chat.someone');
           this.typingPeerLabel.set(label);
         }
         if (this.remoteTypingClear !== undefined) {

@@ -7,4 +7,5 @@ export const environment = {
   apiBaseUrl: '',
   wsUrl: '',
   maxChatMessageChars: 1000,
+  defaultLocale: 'fr' as const,
 } as const;

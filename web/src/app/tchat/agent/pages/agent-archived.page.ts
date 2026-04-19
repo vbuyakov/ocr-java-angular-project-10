@@ -2,6 +2,8 @@ import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal 
 import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 
+import { I18nService } from '@app/core/i18n/i18n.service';
+import { TranslatePipe } from '@app/core/i18n/translate.pipe';
 import { ChatStompService } from '@app/core/websocket/chat-stomp.service';
 import type { ChatSummaryResponse } from '@app/tchat/models/chat-rest.models';
 import { formatChatListLine } from '@app/tchat/util/chat-list-label';
@@ -11,13 +13,14 @@ import { AgentChatApiService } from '../services/agent-chat.api.service';
 @Component({
   selector: 'app-agent-archived-page',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, TranslatePipe],
   templateUrl: './agent-archived.page.html',
   styleUrl: './agent-archived.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AgentArchivedPageComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly i18n = inject(I18nService);
   private readonly api = inject(AgentChatApiService);
   protected readonly stomp = inject(ChatStompService);
 
@@ -49,7 +52,7 @@ export class AgentArchivedPageComponent implements OnInit {
       },
       error: () => {
         this.loading.set(false);
-        this.loadError.set('Failed to load archived chats');
+        this.loadError.set(this.i18n.translate('errors.agentArchivedLoad'));
       },
     });
   }

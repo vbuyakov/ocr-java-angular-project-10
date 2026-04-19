@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 test.describe('Phase 1 — UI kit', () => {
   test('dev page shows primitives and mobile layout', async ({ page }) => {

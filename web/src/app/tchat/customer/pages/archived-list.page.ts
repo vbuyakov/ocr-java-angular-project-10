@@ -10,6 +10,8 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 
+import { I18nService } from '@app/core/i18n/i18n.service';
+import { TranslatePipe } from '@app/core/i18n/translate.pipe';
 import { UiAlertComponent } from '@app/core/ui/alert/ui-alert.component';
 
 import type { ChatSummaryResponse } from '@app/tchat/models/chat-rest.models';
@@ -20,13 +22,14 @@ import { CustomerChatApiService } from '../services/customer-chat.api.service';
 @Component({
   selector: 'app-archived-list-page',
   standalone: true,
-  imports: [RouterLink, UiAlertComponent],
+  imports: [RouterLink, UiAlertComponent, TranslatePipe],
   templateUrl: './archived-list.page.html',
   styleUrl: './archived-list.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ArchivedListPageComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly i18n = inject(I18nService);
   private readonly api = inject(CustomerChatApiService);
 
   protected readonly items = signal<ChatSummaryResponse[]>([]);
@@ -46,7 +49,9 @@ export class ArchivedListPageComponent implements OnInit {
         },
         error: (err: unknown) => {
           this.loading.set(false);
-          this.loadError.set(err instanceof HttpErrorResponse ? err.message : 'Failed to load');
+          this.loadError.set(
+            err instanceof HttpErrorResponse ? err.message : this.i18n.translate('errors.genericLoad'),
+          );
         },
       });
   }

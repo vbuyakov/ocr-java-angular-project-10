@@ -1,0 +1,127 @@
+{
+  "brand": {
+    "alt": "Your Car Your Way"
+  },
+  "common": {
+    "loading": "Loading…",
+    "close": "Close",
+    "cancel": "Cancel",
+    "continue": "Continue",
+    "primary": "Primary",
+    "secondary": "Secondary",
+    "outline": "Outline",
+    "label": "Label",
+    "placeholder": "Placeholder…"
+  },
+  "nav": {
+    "mainAria": "Main",
+    "homeAria": "Home",
+    "uiKit": "UI kit",
+    "chat": "Chat",
+    "archived": "Archived",
+    "inbox": "Inbox",
+    "signOut": "Sign out",
+    "signIn": "Sign in"
+  },
+  "login": {
+    "title": "Sign in",
+    "lead": "Use your support username or email.",
+    "usernameLabel": "Username or email",
+    "usernamePlaceholder": "e.g. cust1",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Password",
+    "submit": "Sign in",
+    "submitting": "Signing in…",
+    "errorRequired": "Enter username and password.",
+    "errorFailed": "Sign-in failed. Check your credentials and that the API is running."
+  },
+  "errors": {
+    "agentInboxLoad": "Failed to load inbox.",
+    "agentArchivedLoad": "Failed to load archived chats.",
+    "genericLoad": "Failed to load."
+  },
+  "chat": {
+    "bubbleMe": "Me",
+    "edited": "edited",
+    "send": "Send",
+    "messageLabel": "Message",
+    "yourMessage": "Your message",
+    "noMessagesYet": "No messages yet.",
+    "noMessages": "No messages.",
+    "charsRemaining": "{{remaining}} characters remaining (max {{max}}).",
+    "typing": "{{name}} is typing…",
+    "someone": "Someone"
+  },
+  "agentInbox": {
+    "title": "Agent inbox",
+    "bucketsAria": "Inbox buckets",
+    "bucketNewRequests": "New requests",
+    "bucketMyActive": "My active",
+    "bucketOthersActive": "Others active",
+    "bucketArchived": "Archived",
+    "empty": "No chats in this bucket.",
+    "rowOtherAgent": "other agent"
+  },
+  "agentArchived": {
+    "title": "Archived chats",
+    "back": "Back to inbox",
+    "empty": "No archived chats."
+  },
+  "agentChat": {
+    "title": "Chat",
+    "back": "Back to inbox",
+    "claimLead": "Claim this request to read and send messages.",
+    "claimSubmit": "Claim conversation",
+    "claimSubmitting": "Claiming…",
+    "forbidden": "You cannot open this chat.",
+    "closedBanner": "This chat is closed (read-only).",
+    "leave": "Leave chat",
+    "close": "Close chat",
+    "closeConfirmTitle": "Close this chat?",
+    "closeConfirmAction": "Close chat",
+    "closeConfirmBody": "The customer will not be able to send new messages in this conversation."
+  },
+  "supportChat": {
+    "title": "Support chat",
+    "linkArchived": "Archived chats",
+    "errorGeneric": "Something went wrong. Try again later.",
+    "closedBanner": "This chat is closed. You can read past threads under Archived chats.",
+    "startLead": "Start by sending your first message to support.",
+    "startSubmit": "Start conversation",
+    "startSubmitting": "Starting…"
+  },
+  "customerArchived": {
+    "listTitle": "Archived chats",
+    "backLive": "Back to live chat",
+    "listEmpty": "No archived chats yet.",
+    "threadTitle": "Archived thread",
+    "backList": "Back to list",
+    "chatIdLine": "Chat {{id}}"
+  },
+  "devUi": {
+    "title": "UI kit",
+    "lead": "Development-only gallery of shared components (Tailwind, Bootstrap-inspired tokens).",
+    "buttons": "Buttons",
+    "textField": "Text field",
+    "card": "Card",
+    "cardTitle": "Card title",
+    "cardBody": "Body content uses the same spacing and borders as production cards.",
+    "alerts": "Alerts",
+    "alertInfo": "Informational message.",
+    "alertSuccess": "Success state.",
+    "alertWarning": "Warning state.",
+    "alertDanger": "Danger state.",
+    "tabs": "Tabs",
+    "tabA": "Tab A",
+    "tabB": "Tab B",
+    "tabPanelA": "Panel for tab A.",
+    "tabPanelB": "Panel for tab B.",
+    "modal": "Modal",
+    "openModal": "Open modal",
+    "openConfirm": "Open confirm",
+    "exampleTitle": "Example modal",
+    "modalBody": "Backdrop click closes the dialog.",
+    "confirmTitle": "Confirm?",
+    "confirmBody": "Backdrop or Cancel dismisses without continuing."
+  }
+}

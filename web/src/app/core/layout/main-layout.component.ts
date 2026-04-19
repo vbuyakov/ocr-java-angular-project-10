@@ -3,11 +3,12 @@ import { RouterLink, RouterOutlet } from '@angular/router';
 
 import { AuthService } from '@app/auth/auth.service';
 import { APP_SETTINGS } from '@app/core/config/app-settings';
+import { TranslatePipe } from '@app/core/i18n/translate.pipe';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [RouterOutlet, RouterLink],
+  imports: [RouterOutlet, RouterLink, TranslatePipe],
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

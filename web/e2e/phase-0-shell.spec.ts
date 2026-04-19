@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 test.describe('Phase 0 — shell', () => {
   test('shows logo and header without console errors', async ({ page }) => {

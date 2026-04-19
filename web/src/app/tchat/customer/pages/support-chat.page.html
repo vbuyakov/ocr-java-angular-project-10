@@ -1,9 +1,9 @@
 <div class="page support-chat">
   <div class="support-chat-head">
-    <h1 class="page-title" data-testid="support-chat-heading">Support chat</h1>
-    <a routerLink="/support/archived" class="support-chat-archived-link" data-testid="support-chat-link-archived"
-      >Archived chats</a
-    >
+    <h1 class="page-title" data-testid="support-chat-heading">{{ 'supportChat.title' | translate }}</h1>
+    <a routerLink="/support/archived" class="support-chat-archived-link" data-testid="support-chat-link-archived">{{
+      'supportChat.linkArchived' | translate
+    }}</a>
   </div>
 
   @if (loadError(); as le) {
@@ -15,23 +15,23 @@
   @if (chatClosed()) {
     <app-ui-alert
       variant="info"
-      message="This chat is closed. You can read past threads under Archived chats."
+      [message]="'supportChat.closedBanner' | translate"
       testId="support-chat-closed-banner"
     />
   }
 
   @if (phase() === 'loading') {
-    <p class="page-hint" data-testid="support-chat-loading">Loading…</p>
+    <p class="page-hint" data-testid="support-chat-loading">{{ 'common.loading' | translate }}</p>
   }
 
   @if (phase() === 'error') {
-    <p class="page-hint" data-testid="support-chat-error-state">Something went wrong. Try again later.</p>
+    <p class="page-hint" data-testid="support-chat-error-state">{{ 'supportChat.errorGeneric' | translate }}</p>
   }
 
   @if (phase() === 'need-start') {
     <div class="support-chat-start card">
-      <p class="support-chat-start-lead">Start by sending your first message to support.</p>
-      <label class="support-chat-label" for="chat-initial-message">Message</label>
+      <p class="support-chat-start-lead">{{ 'supportChat.startLead' | translate }}</p>
+      <label class="support-chat-label" for="chat-initial-message">{{ 'chat.messageLabel' | translate }}</label>
       <textarea
         id="chat-initial-message"
         class="support-chat-textarea support-chat-textarea--start"
@@ -46,7 +46,7 @@
         [class.support-chat-char-counter-warn]="initialDraft().length > maxMessageChars"
         data-testid="chat-initial-counter"
       >
-        {{ initialCharsRemaining() }} characters remaining (max {{ maxMessageChars }}).
+        {{ 'chat.charsRemaining' | translate: { remaining: initialCharsRemaining(), max: maxMessageChars } }}
       </p>
       <app-ui-button
         variant="primary"
@@ -60,9 +60,9 @@
         (clicked)="startChat()"
       >
         @if (submittingStart()) {
-          Starting…
+          {{ 'supportChat.startSubmitting' | translate }}
         } @else {
-          Start conversation
+          {{ 'supportChat.startSubmit' | translate }}
         }
       </app-ui-button>
     </div>
@@ -82,12 +82,12 @@
                 [attr.data-message-id]="row.message.id"
               >
                 <div class="chat-bubble chat-bubble--out">
-                  <div class="chat-bubble-name">Me</div>
+                  <div class="chat-bubble-name">{{ 'chat.bubbleMe' | translate }}</div>
                   <p class="chat-bubble-body">{{ row.message.content }}</p>
                   <div class="chat-bubble-footer">
                     <span>{{ row.message.createdAt | chatDateTime }}</span>
                     @if (row.message.edited) {
-                      <span class="chat-bubble-edited">edited</span>
+                      <span class="chat-bubble-edited">{{ 'chat.edited' | translate }}</span>
                     }
                   </div>
                 </div>
@@ -106,23 +106,27 @@
                   <div class="chat-bubble-footer">
                     <span>{{ row.message.createdAt | chatDateTime }}</span>
                     @if (row.message.edited) {
-                      <span class="chat-bubble-edited">edited</span>
+                      <span class="chat-bubble-edited">{{ 'chat.edited' | translate }}</span>
                     }
                   </div>
                 </div>
               </div>
             }
           } @empty {
-            <p class="page-hint chat-thread-empty-hint" data-testid="chat-message-empty">No messages yet.</p>
+            <p class="page-hint chat-thread-empty-hint" data-testid="chat-message-empty">
+              {{ 'chat.noMessagesYet' | translate }}
+            </p>
           }
         </div>
         @if (typingPeerLabel(); as who) {
-          <p class="chat-typing-line" data-testid="chat-typing-indicator">{{ who }} is typing…</p>
+          <p class="chat-typing-line" data-testid="chat-typing-indicator">{{
+            'chat.typing' | translate: { name: who }
+          }}</p>
         }
       </div>
       @if (!chatClosed()) {
         <div class="support-chat-compose">
-          <label class="support-chat-label" for="chat-compose-input">Your message</label>
+          <label class="support-chat-label" for="chat-compose-input">{{ 'chat.yourMessage' | translate }}</label>
           <textarea
             id="chat-compose-input"
             class="support-chat-textarea"
@@ -137,7 +141,7 @@
             [class.support-chat-char-counter-warn]="draft().length > maxMessageChars"
             data-testid="chat-compose-counter"
           >
-            {{ composeCharsRemaining() }} characters remaining (max {{ maxMessageChars }}).
+            {{ 'chat.charsRemaining' | translate: { remaining: composeCharsRemaining(), max: maxMessageChars } }}
           </p>
           <app-ui-button
             variant="primary"
@@ -146,7 +150,7 @@
             [disabled]="sendDisabled()"
             (clicked)="sendMessage()"
           >
-            Send
+            {{ 'chat.send' | translate }}
           </app-ui-button>
         </div>
       }

@@ -1,10 +1,17 @@
 <div class="page agent-inbox">
   <div class="agent-inbox-head">
-    <h1 class="page-title" data-testid="agent-inbox-heading">Agent inbox</h1>
-    <a routerLink="/agent/archived" class="agent-inbox-link" data-testid="agent-inbox-archived-link">Archived</a>
+    <h1 class="page-title" data-testid="agent-inbox-heading">{{ 'agentInbox.title' | translate }}</h1>
+    <a routerLink="/agent/archived" class="agent-inbox-link" data-testid="agent-inbox-archived-link">{{
+      'nav.archived' | translate
+    }}</a>
   </div>
 
-  <div class="agent-bucket-tabs" data-testid="agent-bucket-tabs" role="tablist" aria-label="Inbox buckets">
+  <div
+    class="agent-bucket-tabs"
+    data-testid="agent-bucket-tabs"
+    role="tablist"
+    [attr.aria-label]="'agentInbox.bucketsAria' | translate"
+  >
     @for (b of buckets; track b) {
       <button
         type="button"
@@ -15,9 +22,7 @@
         role="tab"
         (click)="selectBucket(b)"
       >
-        <span class="agent-bucket-tab-text">{{
-          b === 'NEW_REQUESTS' ? 'New requests' : b === 'MY_ACTIVE' ? 'My active' : 'Others active'
-        }}</span>
+        <span class="agent-bucket-tab-text">{{ bucketLabel(b) }}</span>
         @if (bucketBadgeCount(b); as count) {
           <span class="agent-bucket-badge" [attr.data-testid]="'agent-bucket-count-' + b">{{ count }}</span>
         }
@@ -30,9 +35,9 @@
   }
 
   @if (loading()) {
-    <p class="page-hint" data-testid="agent-inbox-loading">Loading…</p>
+    <p class="page-hint" data-testid="agent-inbox-loading">{{ 'common.loading' | translate }}</p>
   } @else if (items().length === 0) {
-    <p class="page-hint" data-testid="agent-inbox-empty">No chats in this bucket.</p>
+    <p class="page-hint" data-testid="agent-inbox-empty">{{ 'agentInbox.empty' | translate }}</p>
   } @else {
     <ul class="agent-inbox-list" data-testid="agent-inbox-list">
       @for (c of items(); track c.chatId) {
@@ -51,7 +56,9 @@
           } @else {
             <div class="agent-inbox-row agent-inbox-row-static" data-testid="agent-inbox-row-static">
               <span class="agent-inbox-row-line">{{ chatListLine(c) }}</span>
-              <span class="agent-inbox-row-meta">{{ c.status }} · other agent</span>
+              <span class="agent-inbox-row-meta"
+                >{{ c.status }} · {{ 'agentInbox.rowOtherAgent' | translate }}</span
+              >
             </div>
           }
         </li>

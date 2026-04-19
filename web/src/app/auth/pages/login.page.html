@@ -1,7 +1,7 @@
 <div class="login-page">
   <div class="login-card card">
-    <h1 class="login-title">Sign in</h1>
-    <p class="login-lead">Use your support username or email.</p>
+    <h1 class="login-title">{{ 'login.title' | translate }}</h1>
+    <p class="login-lead" data-testid="login-phase-hint">{{ 'login.lead' | translate }}</p>
 
     @if (errorMessage(); as err) {
       <div class="login-alert">
@@ -11,16 +11,16 @@
 
     <form class="login-form" (submit)="$event.preventDefault(); submit()">
       <app-ui-input
-        label="Username or email"
-        placeholder="e.g. cust1"
+        [label]="'login.usernameLabel' | translate"
+        [placeholder]="'login.usernamePlaceholder' | translate"
         autocomplete="username"
         testId="login-username"
         [value]="username()"
         (valueChange)="onUsername($event)"
       />
       <app-ui-input
-        label="Password"
-        placeholder="Password"
+        [label]="'login.passwordLabel' | translate"
+        [placeholder]="'login.passwordPlaceholder' | translate"
         inputType="password"
         autocomplete="current-password"
         testId="login-password"
@@ -34,9 +34,9 @@
         [disabled]="submitting()"
       >
         @if (submitting()) {
-          Signing in…
+          {{ 'login.submitting' | translate }}
         } @else {
-          Sign in
+          {{ 'login.submit' | translate }}
         }
       </app-ui-button>
     </form>
