@@ -28,7 +28,7 @@ todos:
     status: completed
   - id: phase-8-e2e-tests
     content: "Phase 8: E2E tests (full Spring context, HTTP API, DB, STOMP/WebSocket flows)"
-    status: pending
+    status: completed
   - id: save-plan-md
     content: "Optional: copy plan to context/support_chat_implementation_plan.md if you want a second copy under context/"
     status: pending

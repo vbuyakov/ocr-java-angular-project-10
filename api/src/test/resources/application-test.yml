@@ -1,4 +1,12 @@
 # In-memory DB for tests (no Docker Postgres required). Schema from JPA ddl-auto, Flyway off.
+# Broad origin for E2E STOMP/SockJS clients (not browser CORS).
+app:
+  frontend-origin: "*"
+
+# JwtService decodes this with Base64; dev default is not valid Base64 and breaks login in tests.
+jwt:
+  secret: dGVzdC1zejI1Ni1zZWNyZXQta2V5LWZvci1oMi1lMmUtb25seQ==
+
 spring:
   datasource:
     url: jdbc:h2:mem:ycyw_test;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE

@@ -38,6 +38,18 @@ Docker, use:
 
 ### Backend
 
+#### Running tests locally
+
+From the `api` directory (Java 21; Gradle wrapper):
+
+| What | Command |
+|------|---------|
+| **All tests** (unit, slice, and E2E) | `./gradlew test` |
+| **Unit / slice only** (excludes E2E under `tchat.e2e`) | `./gradlew test --tests '*' --tests '!com.ycyw.api.tchat.e2e.*'` |
+| **E2E only** (`SupportChatE2eTest`: HTTP + SockJS/STOMP on a random port, H2 via `application-test`) | `./gradlew test --tests 'com.ycyw.api.tchat.e2e.SupportChatE2eTest'` |
+
+E2E tests use `@ActiveProfiles("test")` and in-memory H2; you do not need Docker Postgres to run them.
+
 ### Frontend
 
 ## Project Structure

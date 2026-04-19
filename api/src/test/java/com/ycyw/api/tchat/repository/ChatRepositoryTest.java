@@ -5,6 +5,7 @@ import com.ycyw.api.tchat.model.ChatStatus;
 import com.ycyw.api.user.model.Role;
 import com.ycyw.api.user.model.User;
 import com.ycyw.api.user.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,7 +24,17 @@ class ChatRepositoryTest {
     private ChatRepository chatRepository;
 
     @Autowired
+    private ChatMessageRepository chatMessageRepository;
+
+    @Autowired
     private UserRepository userRepository;
+
+    @BeforeEach
+    void clean() {
+        chatMessageRepository.deleteAll();
+        chatRepository.deleteAll();
+        userRepository.deleteAll();
+    }
 
     @Test
     void findFirstByClient_IdAndStatusNot_returnsNonClosedChat() {
