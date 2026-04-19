@@ -15,6 +15,9 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+    # If schema already exists (created before Flyway), mark it as baseline
+    # instead of trying to execute V1 on existing tables.
+    baseline-on-migrate: true
 
 server:
   port: 8080
