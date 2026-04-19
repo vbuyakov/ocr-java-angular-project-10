@@ -25,19 +25,19 @@
 }
 
 .app-nav {
-  @apply flex gap-4 text-sm font-medium text-[var(--color-text-muted)];
+  @apply flex flex-wrap items-center justify-end gap-x-3 gap-y-2 text-sm font-medium text-[var(--color-text-muted)];
 }
 
 .app-nav-link {
-  @apply transition-colors hover:text-[var(--color-brand-red)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-blue)] focus-visible:ring-offset-2 rounded;
+  @apply inline-flex min-h-9 items-center rounded px-1 leading-none transition-colors hover:text-[var(--color-brand-red)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-blue)] focus-visible:ring-offset-2;
 }
 
 .app-nav-user {
-  @apply max-w-[10rem] truncate text-xs text-[var(--color-text-muted)] sm:max-w-none sm:text-sm;
+  @apply inline-flex max-w-[10rem] min-h-9 items-center truncate text-sm leading-none text-[var(--color-text-muted)] sm:max-w-none;
 }
 
 .app-nav-logout {
-  @apply rounded-md border border-[var(--color-border)] bg-white px-3 py-1.5 text-sm font-medium text-[var(--color-text)] transition-colors hover:bg-[var(--color-surface)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-blue)] focus-visible:ring-offset-2;
+  @apply inline-flex min-h-9 items-center justify-center rounded-md border border-[var(--color-border)] bg-white px-3 text-sm font-medium leading-none text-[var(--color-text)] transition-colors hover:bg-[var(--color-surface)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-blue)] focus-visible:ring-offset-2;
 }
 
 .app-main {

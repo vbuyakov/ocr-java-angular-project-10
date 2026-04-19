@@ -12,6 +12,14 @@
   @apply text-xl font-semibold text-[var(--color-text)];
 }
 
-.login-hint {
+.login-lead {
   @apply mt-2 text-sm text-[var(--color-text-muted)];
+}
+
+.login-alert {
+  @apply mt-5;
+}
+
+.login-form {
+  @apply mt-6 flex flex-col gap-5;
 }

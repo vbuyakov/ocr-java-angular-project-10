@@ -38,6 +38,7 @@ management:
         enabled: true
 
 # Valeurs par défaut pour le développement local – surchargées par les variables d'env en prod
+# Secret: phrase UTF-8 d'au moins 32 octets, OU chaîne Base64 décodant vers ≥32 octets (HS256).
 jwt:
   secret: ${JWT_SECRET:dev_secret_please_change_in_production}
   expiration-ms: ${JWT_EXPIRATION_MS:86400000}

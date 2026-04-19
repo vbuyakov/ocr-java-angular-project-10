@@ -4,7 +4,9 @@
     <p class="login-lead">Use your support username or email.</p>
 
     @if (errorMessage(); as err) {
-      <app-ui-alert variant="danger" [message]="err" testId="login-error" />
+      <div class="login-alert">
+        <app-ui-alert variant="danger" [message]="err" testId="login-error" />
+      </div>
     }
 
     <form class="login-form" (submit)="$event.preventDefault(); submit()">
