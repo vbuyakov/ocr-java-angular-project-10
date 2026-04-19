@@ -9,10 +9,10 @@ import { buildSockJsUrl } from './sock-js-endpoint';
 
 export type ChatStompConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
 
-type RegisteredSubscription = {
+interface RegisteredSubscription {
   readonly destination: string;
   readonly handler: (message: IMessage) => void;
-};
+}
 
 @Injectable({ providedIn: 'root' })
 export class ChatStompService {

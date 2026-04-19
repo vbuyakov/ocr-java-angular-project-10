@@ -1,8 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { IMessage } from '@stomp/stompjs';
-
 import { AuthTokenStore } from '@app/auth/auth-token.store';
 import { APP_SETTINGS, type AppSettings } from '@app/core/config/app-settings';
 
@@ -15,8 +13,6 @@ vi.mock('@stomp/stompjs', () => {
     onStompError?: () => void;
     onWebSocketClose?: () => void;
 
-    constructor(_opts?: unknown) {}
-
     activate(): void {
       this.active = true;
       queueMicrotask(() => {
@@ -25,13 +21,13 @@ vi.mock('@stomp/stompjs', () => {
       });
     }
 
-    deactivate(_opts?: { force?: boolean }): Promise<void> {
+    deactivate(): Promise<void> {
       this.active = false;
       this.connected = false;
       return Promise.resolve();
     }
 
-    subscribe = vi.fn((_destination: string, _handler: (message: IMessage) => void) => ({
+    subscribe = vi.fn(() => ({
       unsubscribe: vi.fn(),
     }));
 

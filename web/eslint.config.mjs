@@ -12,6 +12,9 @@ export default tseslint.config(
       'node_modules/**',
       'playwright-report/**',
       'test-results/**',
+      'e2e/**',
+      '**/*.spec.ts',
+      '**/*.test.ts',
     ],
   },
   {
