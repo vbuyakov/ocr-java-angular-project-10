@@ -7,10 +7,10 @@ todos:
     status: completed
   - id: fe-phase-1-design-system
     content: "Phase 1: Shared UI primitives (btn, card, input, tabs, alert, modal drawer) — Tailwind-only, responsive spacing"
-    status: pending
+    status: completed
   - id: fe-phase-2-core-http-auth
     content: "Phase 2: Core HTTP client, auth token storage, login route, role-based redirect (CLIENT vs AGENT)"
-    status: pending
+    status: completed
   - id: fe-phase-3-core-stomp
     content: "Phase 3: StompSession service (SockJS + STOMP, JWT connect headers), typed frame DTOs, reconnect + resubscribe"
     status: pending
