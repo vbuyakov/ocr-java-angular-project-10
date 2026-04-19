@@ -4,7 +4,7 @@ overview: Feature-driven Angular 21 app for CU/AU support chat aligned with [con
 todos:
   - id: fe-phase-0-foundation
     content: "Phase 0: app layout core / auth / tchat, strict TS + ESLint no-explicit-any, Tailwind theme (brand colors from logo), logo in shell"
-    status: pending
+    status: completed
   - id: fe-phase-1-design-system
     content: "Phase 1: Shared UI primitives (btn, card, input, tabs, alert, modal drawer) — Tailwind-only, responsive spacing"
     status: pending
@@ -25,7 +25,7 @@ todos:
     status: pending
   - id: fe-playwright-harness
     content: "Playwright: install, playwright.config (baseURL, webServer), npm scripts e2e / e2e:headed / e2e:ui; one spec per phase"
-    status: pending
+    status: completed
 isProject: true
 ---
 
