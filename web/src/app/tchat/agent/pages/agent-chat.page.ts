@@ -182,6 +182,9 @@ export class AgentChatPageComponent implements OnInit {
   }
 
   private applyHeadlineFromSummary(s: ChatSummaryResponse): void {
+    if (s.status === 'CLOSED') {
+      this.chatClosed.set(true);
+    }
     const u = s.clientUsername?.trim();
     const c = s.createdAt;
     if (u && c) {
@@ -417,6 +420,9 @@ export class AgentChatPageComponent implements OnInit {
   }
 
   private applyMessagesResponse(res: ChatMessagesResponse): void {
+    if (res.chatStatus === 'CLOSED') {
+      this.chatClosed.set(true);
+    }
     this.messages.set(sortChronological(res.messages));
     this.messageAnnouncePrev = this.messages().length;
     const u = res.clientUsername?.trim();

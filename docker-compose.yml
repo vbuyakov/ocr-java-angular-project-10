@@ -10,46 +10,63 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
+      # Persisted DB: if Flyway reports a checksum mismatch on an edited migration, run:
+      #   docker compose down -v
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
     restart: unless-stopped
 
-  # ─── Spring Boot API ──────────────────────────────────────────
+  # ─── Spring Boot API (internal :8080 — not published) ─────────
   api:
     build:
       context: ./api
       dockerfile: Dockerfile
-    ports:
-      - "${API_PORT}:8080"
     environment:
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS}
-      FRONTEND_ORIGIN: http://localhost:${WEB_PORT}
+      FRONTEND_ORIGIN: http://localhost:${APP_PORT:-80}
     depends_on:
       postgres:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 50s
     restart: unless-stopped
 
-  # ─── Angular Frontend ─────────────────────────────────────────
+  # ─── Angular static assets (internal :80 — not published) ─────
   web:
     build:
       context: ./web
       dockerfile: Dockerfile
-      args:
-        # Baked into Angular as environment.apiBaseUrl (REST + /ws). Override via .env API_BASE_URL.
-        API_BASE_URL: ${API_BASE_URL:-http://localhost:${API_PORT}}
-    ports:
-      - "${WEB_PORT}:80"
     depends_on:
       api:
         condition: service_healthy
+    restart: unless-stopped
+
+  # ─── Edge proxy (conf-samples style: single host port) ────────
+  nginx:
+    image: nginx:1.27-alpine
+    volumes:
+      - ./misc/docker/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "${APP_PORT:-80}:80"
+    depends_on:
+      api:
+        condition: service_healthy
+      web:
+        condition: service_started
     restart: unless-stopped
 
 volumes:

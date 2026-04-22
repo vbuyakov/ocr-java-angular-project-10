@@ -82,11 +82,9 @@ Database migrations live in `src/main/resources/db/migration/` (Flyway, currentl
 | `POSTGRES_PASSWORD` | `changeme` | Change in production |
 | `JWT_SECRET` | `changeme_use_a_long_random_string_in_production` | Change in production |
 | `JWT_EXPIRATION_MS` | `86400000` | 24 hours |
-| `POSTGRES_PORT` | `5432` | |
-| `API_PORT` | `8080` | |
-| `WEB_PORT` | `4200` | |
-| `API_BASE_URL` | `http://localhost:8080` | Compiled into Angular build |
-| `FRONTEND_ORIGIN` | `http://localhost:4200` | CORS allowed origin |
+| `POSTGRES_PORT` | `5432` | Dev overlay exposes Postgres |
+| `APP_PORT` | `80` | Host → edge `nginx` container port 80; use `4200` if 80 is taken |
+| `FRONTEND_ORIGIN` | `http://localhost:${APP_PORT}` | Set by Compose for WebSocket/CORS origin |
 
 ## Angular Coding Standards
 

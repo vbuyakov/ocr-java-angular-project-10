@@ -49,4 +49,6 @@ export interface ChatMessagesResponse {
   readonly hasMore: boolean;
   readonly clientUsername?: string | null;
   readonly chatCreatedAt?: string | null;
+  /** Server chat status name, e.g. `NEW`, `ACTIVE`, `CLOSED`. */
+  readonly chatStatus?: string | null;
 }

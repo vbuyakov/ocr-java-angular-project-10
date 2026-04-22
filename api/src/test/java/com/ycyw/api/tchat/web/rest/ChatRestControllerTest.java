@@ -71,7 +71,7 @@ class ChatRestControllerTest {
     @Test
     void getMessages_ok() throws Exception {
         when(chatService.getMessages(chatId, userId, 50, null, null))
-                .thenReturn(new ChatMessagesResponse(List.of(), false, null, null));
+                .thenReturn(new ChatMessagesResponse(List.of(), false, null, null, "ACTIVE"));
 
         mockMvc.perform(
                         get("/api/chat/{chatId}/messages", chatId)

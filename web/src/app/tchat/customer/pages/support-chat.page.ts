@@ -219,7 +219,7 @@ export class SupportChatPageComponent implements OnInit {
       return;
     }
     const content = raw.trim();
-    if (!id || !content) {
+    if (!id || !content || this.chatClosed()) {
       return;
     }
     this.sending.set(true);
@@ -240,6 +240,9 @@ export class SupportChatPageComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
+          if (res.chatStatus === 'CLOSED') {
+            this.chatClosed.set(true);
+          }
           this.messages.set(res.messages);
           this.messageAnnouncePrev = this.messages().length;
         },

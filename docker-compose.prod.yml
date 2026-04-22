@@ -1,0 +1,11 @@
+# Production overlay: pre-built images from GHCR (see .github/workflows/docker-image.yml).
+# On the server, set API_IMAGE / WEB_IMAGE to match published tags, e.g.:
+#   API_IMAGE=ghcr.io/<owner>/<repo>-api:v1.2.3
+#   WEB_IMAGE=ghcr.io/<owner>/<repo>-web:v1.2.3
+# Then: ./misc/cicd/prod-up.sh
+
+services:
+  api:
+    image: ${API_IMAGE:-ghcr.io/your-org/poc_app-api:latest}
+  web:
+    image: ${WEB_IMAGE:-ghcr.io/your-org/poc_app-web:latest}

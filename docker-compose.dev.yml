@@ -1,4 +1,5 @@
-services:
-  postgres:
-    ports:
-      - "${POSTGRES_PORT}:5432"
+# Optional overlay for future dev-only Compose tweaks.
+# PostgreSQL is published on ${POSTGRES_PORT:-5432} by default in docker-compose.yml
+# (for seed_users.py, GUI clients, local bootRun against Docker DB).
+
+services: {}

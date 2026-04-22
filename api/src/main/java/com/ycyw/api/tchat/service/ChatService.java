@@ -208,7 +208,8 @@ public class ChatService {
                 content.stream().map(ChatMapper::toMessage).toList(),
                 hasMore,
                 chat.getClient().getUsername(),
-                chat.getCreatedAt());
+                chat.getCreatedAt(),
+                chat.getStatus().name());
     }
 
     /**
