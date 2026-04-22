@@ -12,7 +12,7 @@ describe('authInterceptor', () => {
   let httpMock: HttpTestingController;
 
   beforeEach(() => {
-    sessionStorage.clear();
+    localStorage.clear();
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(withInterceptors([authInterceptor])),

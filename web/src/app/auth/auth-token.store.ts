@@ -11,7 +11,7 @@ export class AuthTokenStore {
   readonly accessToken = signal<string | null>(null);
 
   constructor() {
-    const stored = sessionStorage.getItem(TOKEN_KEY);
+    const stored = localStorage.getItem(TOKEN_KEY);
     if (stored) {
       this.accessToken.set(stored);
     }
@@ -20,9 +20,9 @@ export class AuthTokenStore {
   setAccessToken(token: string | null): void {
     this.accessToken.set(token);
     if (token) {
-      sessionStorage.setItem(TOKEN_KEY, token);
+      localStorage.setItem(TOKEN_KEY, token);
     } else {
-      sessionStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(TOKEN_KEY);
     }
   }
 }

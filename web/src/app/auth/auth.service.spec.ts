@@ -26,7 +26,7 @@ describe('AuthService', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    sessionStorage.clear();
+    localStorage.clear();
     navigateMock = vi.fn().mockResolvedValue(true);
     TestBed.configureTestingModule({
       providers: [
@@ -97,7 +97,7 @@ describe('AuthService', () => {
     expect(stompShutdown).toHaveBeenCalled();
     expect(TestBed.inject(AuthTokenStore).accessToken()).toBeNull();
     expect(service.profile()).toBeNull();
-    expect(sessionStorage.getItem('ycyw_user_profile')).toBeNull();
+    expect(localStorage.getItem('ycyw_user_profile')).toBeNull();
   });
 
   it('navigateAfterLogin routes by role', () => {
@@ -130,8 +130,8 @@ describe('AuthService', () => {
 
   it('clears session when stored profile JSON is invalid', () => {
     TestBed.resetTestingModule();
-    sessionStorage.clear();
-    sessionStorage.setItem('ycyw_user_profile', '{not-json');
+    localStorage.clear();
+    localStorage.setItem('ycyw_user_profile', '{not-json');
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(),
@@ -152,7 +152,7 @@ describe('AuthService', () => {
 
   it('clears orphan token when no profile is stored', () => {
     TestBed.resetTestingModule();
-    sessionStorage.clear();
+    localStorage.clear();
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(),

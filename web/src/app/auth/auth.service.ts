@@ -42,7 +42,7 @@ export class AuthService {
       switchMap(() => this.http.get<UserProfile>(`${base}/user/profile`)),
       tap((prof) => {
         this.profile.set(prof);
-        sessionStorage.setItem(PROFILE_KEY, JSON.stringify(prof));
+        localStorage.setItem(PROFILE_KEY, JSON.stringify(prof));
       }),
       map(() => undefined),
     );
@@ -52,7 +52,7 @@ export class AuthService {
     this.chatStomp.shutdown();
     this.tokenStore.setAccessToken(null);
     this.profile.set(null);
-    sessionStorage.removeItem(PROFILE_KEY);
+    localStorage.removeItem(PROFILE_KEY);
     void this.router.navigate(['/login']);
   }
 
@@ -69,7 +69,7 @@ export class AuthService {
   }
 
   private restoreProfileFromStorage(): void {
-    const raw = sessionStorage.getItem(PROFILE_KEY);
+    const raw = localStorage.getItem(PROFILE_KEY);
     if (!raw || this.tokenStore.accessToken() === null) {
       return;
     }
@@ -83,6 +83,6 @@ export class AuthService {
   private clearStaleSession(): void {
     this.tokenStore.setAccessToken(null);
     this.profile.set(null);
-    sessionStorage.removeItem(PROFILE_KEY);
+    localStorage.removeItem(PROFILE_KEY);
   }
 }

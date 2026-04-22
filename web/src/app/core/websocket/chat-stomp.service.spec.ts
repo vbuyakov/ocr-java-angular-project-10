@@ -58,7 +58,7 @@ describe('ChatStompService', () => {
   };
 
   beforeEach(() => {
-    sessionStorage.clear();
+    localStorage.clear();
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
@@ -72,7 +72,7 @@ describe('ChatStompService', () => {
   afterEach(() => {
     TestBed.inject(ChatStompService).shutdown();
     TestBed.resetTestingModule();
-    sessionStorage.clear();
+    localStorage.clear();
   });
 
   it('connect does nothing when there is no JWT', () => {
