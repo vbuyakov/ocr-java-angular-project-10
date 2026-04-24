@@ -29,7 +29,7 @@ jobs:
 
       - name: Upload API test results
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: test-results-api
           path: test-results/
@@ -56,7 +56,7 @@ jobs:
 
       - name: Upload web test results
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: test-results-web
           path: test-results/
