@@ -29,10 +29,10 @@ npm run build              # Production build
 
 ```bash
 # Start everything
-docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+docker compose up -d
 
 # Start only PostgreSQL (run API on host)
-docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d postgres
+docker compose up -d postgres
 ```
 
 Copy `.env.example` to `.env` and adjust values before running Docker. When running the API on the host against a Dockerized DB, set `SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:${POSTGRES_PORT}/ycyw`.

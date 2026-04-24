@@ -107,8 +107,7 @@ La PoC couvre **uniquement la fonctionnalité de tchat** — elle ne constitue p
 │   └── seed_users.py           # Script de création des comptes
 │
 ├── misc/cicd/
-│   ├── run-tests.sh            # Tests API + web (utilisé par GitHub Actions)
-│   └── prod-up.sh              # Déploiement prod (images GHCR + compose prod)
+│   └── run-tests.sh            # Tests API + web (utilisé par GitHub Actions)
 │
 ├── .github/workflows/
 │   ├── ci.yml                  # CI : tests + build api/web
@@ -116,8 +115,7 @@ La PoC couvre **uniquement la fonctionnalité de tchat** — elle ne constitue p
 │   └── docker-image.yml        # Build/push images api + web vers GHCR
 │
 ├── docker-compose.yml          # Stack complète (postgres + api + web + nginx)
-├── docker-compose.dev.yml      # Surcharges dev (à fusionner avec -f, voir §5)
-├── docker-compose.prod.yml     # Images GHCR (overlay prod, voir misc/cicd/prod-up.sh)
+├── docker-compose.prod.yml     # Overlay prod : images API/web depuis GHCR
 ├── .env.example                # Modèle de variables d'environnement
 ├── package.json                # Racine : semantic-release uniquement
 └── README.md
@@ -160,13 +158,11 @@ Lance la stack complète (PostgreSQL + API + frontend statique + **nginx** en en
 docker compose up --build
 ```
 
-**Variante explicite (recommandée si tu n’es pas à la racine du dépôt, ou pour empiler les surcharges dev) :**
+**Fichier Compose explicite** (hors du répertoire du dépôt, par exemple) :
 
 ```bash
-docker compose -f ./docker-compose.yml -f ./docker-compose.dev.yml up --build
+docker compose -f /chemin/vers/poc_app/docker-compose.yml up --build
 ```
-
-Les deux `-f` chargent d’abord la stack de base, puis fusionnent `docker-compose.dev.yml` (overrides optionnels : ports, variables, etc.). C’est la forme à utiliser si `seed_users.py` ou un client SQL doit joindre PostgreSQL sur `localhost:${POSTGRES_PORT}` et que tu veux t’aligner sur la même commande que l’option B.
 
 Une fois démarré, tout passe par **`http://localhost:${APP_PORT}`** (défaut **80** → [http://localhost](http://localhost)) :
 
@@ -186,12 +182,6 @@ Pour arrêter :
 docker compose down
 ```
 
-Même jeu de fichiers si tu avais lancé avec les deux `-f` :
-
-```bash
-docker compose -f ./docker-compose.yml -f ./docker-compose.dev.yml down
-```
-
 Pour arrêter et supprimer les données (base de données réinitialisée) :
 
 ```bash
@@ -207,10 +197,10 @@ Cette option est plus rapide pour développer car elle évite de rebuilder Docke
 **1. Lance uniquement PostgreSQL dans Docker :**
 
 ```bash
-docker compose -f ./docker-compose.yml -f ./docker-compose.dev.yml up -d postgres
+docker compose -f ./docker-compose.yml up -d postgres
 ```
 
-PostgreSQL sera accessible sur `localhost` au port défini dans `POSTGRES_PORT` (souvent `5432`). La stack « complète » publie déjà ce port dans `docker-compose.yml` ; la commande à deux fichiers reste utile pour les overrides éventuels dans `docker-compose.dev.yml`.
+(À la racine du dépôt, `docker compose up -d postgres` suffit : le fichier par défaut est `docker-compose.yml`.) PostgreSQL est accessible sur `localhost` au port `POSTGRES_PORT` (souvent `5432`, déjà publié par `docker-compose.yml`).
 
 **2. Lance l'API Spring Boot :**
 
@@ -242,10 +232,10 @@ cd devops
 uv run seed_users.py
 ```
 
-Pour **promouvoir les agents** en base, PostgreSQL doit être joignable sur `localhost:${POSTGRES_PORT}` (port publié par la stack). Démarre les conteneurs puis lance le seed ; en cas de souci, utilise explicitement les deux fichiers Compose comme pour l’app :
+Pour **promouvoir les agents** en base, PostgreSQL doit être joignable sur `localhost:${POSTGRES_PORT}` (port publié par la stack). Démarre les conteneurs puis lance le seed — en cas de souci, depuis la racine du dépôt :
 
 ```bash
-docker compose -f ./docker-compose.yml -f ./docker-compose.dev.yml up -d
+docker compose -f ./docker-compose.yml up -d
 cd devops && uv run seed_users.py
 ```
 

@@ -18,7 +18,7 @@ Public API URL resolution (first match):
 
 PostgreSQL (for promoting agents): POSTGRES_HOST (default localhost), POSTGRES_PORT.
 The stack publishes Postgres on the host; start it first (see README §5), e.g.:
-  docker compose -f ./docker-compose.yml -f ./docker-compose.dev.yml up -d
+  docker compose -f ./docker-compose.yml up -d
 
 Usage:
     uv run seed_users.py
@@ -108,7 +108,7 @@ def promote_agents(env: dict, agents: list[dict]) -> None:
         print(f"\n  [warn]    Cannot connect to PostgreSQL ({e}). Agent promotion skipped.")
         print("            Start the stack so Postgres is up (localhost, POSTGRES_PORT in .env), then re-run.")
         print(
-            "              docker compose -f ./docker-compose.yml -f ./docker-compose.dev.yml up -d"
+            "              docker compose -f ./docker-compose.yml up -d"
         )
         print("            (See README §5.) Or set POSTGRES_HOST. Agents: " + names)
         return
