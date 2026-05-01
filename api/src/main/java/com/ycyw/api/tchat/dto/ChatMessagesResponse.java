@@ -7,4 +7,5 @@ public record ChatMessagesResponse(
         List<ChatMessageResponse> messages,
         boolean hasMore,
         String clientUsername,
-        LocalDateTime chatCreatedAt) {}
+        LocalDateTime chatCreatedAt,
+        String chatStatus) {}

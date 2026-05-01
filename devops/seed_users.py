@@ -10,6 +10,16 @@ Seed users from users.json into the API.
 Registers each user via POST /auth/register, then promotes AGENT users
 directly in the database (the API only creates CLIENT accounts).
 
+Public API URL resolution (first match):
+  1. SEED_API_BASE_URL — explicit override
+  2. APP_PORT — http://localhost or http://localhost:<port> (Docker edge nginx)
+  3. API_BASE_URL — e.g. http://localhost:8080 when API runs with bootRun (no proxy)
+  4. http://localhost — default (nginx on host port 80)
+
+PostgreSQL (for promoting agents): POSTGRES_HOST (default localhost), POSTGRES_PORT.
+The stack publishes Postgres on the host; start it first (see README §5), e.g.:
+  docker compose -f ./docker-compose.yml up -d
+
 Usage:
     uv run seed_users.py
 """
@@ -37,6 +47,23 @@ def load_env(path: Path) -> dict[str, str]:
             key, _, value = line.partition("=")
             env[key.strip()] = value.strip()
     return env
+
+
+def resolve_api_base_url(env: dict[str, str]) -> str:
+    """HTTP origin for /auth/register (through edge nginx in Docker, or direct API)."""
+    v = env.get("SEED_API_BASE_URL", "").strip()
+    if v:
+        return v.rstrip("/")
+
+    app_port = env.get("APP_PORT", "").strip()
+    if app_port:
+        return "http://localhost" if app_port == "80" else f"http://localhost:{app_port}"
+
+    v = env.get("API_BASE_URL", "").strip()
+    if v:
+        return v.rstrip("/")
+
+    return "http://localhost"
 
 
 def register_user(api_url: str, user: dict) -> None:
@@ -68,13 +95,23 @@ def promote_agents(env: dict, agents: list[dict]) -> None:
     if not agents:
         return
 
-    conn = psycopg2.connect(
-        host="localhost",
-        port=int(env.get("POSTGRES_PORT", "5432")),
-        dbname=env["POSTGRES_DB"],
-        user=env["POSTGRES_USER"],
-        password=env["POSTGRES_PASSWORD"],
-    )
+    try:
+        conn = psycopg2.connect(
+            host=env.get("POSTGRES_HOST", "localhost"),
+            port=int(env.get("POSTGRES_PORT", "5432")),
+            dbname=env["POSTGRES_DB"],
+            user=env["POSTGRES_USER"],
+            password=env["POSTGRES_PASSWORD"],
+        )
+    except psycopg2.OperationalError as e:
+        names = ", ".join(a["username"] for a in agents)
+        print(f"\n  [warn]    Cannot connect to PostgreSQL ({e}). Agent promotion skipped.")
+        print("            Start the stack so Postgres is up (localhost, POSTGRES_PORT in .env), then re-run.")
+        print(
+            "              docker compose -f ./docker-compose.yml up -d"
+        )
+        print("            (See README §5.) Or set POSTGRES_HOST. Agents: " + names)
+        return
 
     try:
         with conn, conn.cursor() as cur:
@@ -96,7 +133,7 @@ def main() -> None:
         raise FileNotFoundError(f".env not found at {ENV_FILE}")
 
     env = load_env(ENV_FILE)
-    api_url = env.get("API_BASE_URL", "http://localhost:8080").rstrip("/")
+    api_url = resolve_api_base_url(env)
 
     with open(USERS_FILE) as f:
         users: list[dict] = json.load(f)

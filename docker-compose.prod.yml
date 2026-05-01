@@ -1,0 +1,16 @@
+# Production overlay: pre-built images from GHCR (see .github/workflows/docker-image.yml).
+# Set API_IMAGE and WEB_IMAGE in .env on the host (no defaults — avoids pulling non-existent tags).
+# Example tags match publish workflow: <registry>/<owner>/<repo-name>-api:<tag>
+#
+#   API_IMAGE=ghcr.io/owner/ocr-java-angular-project-10-api:v1.0.0
+#   WEB_IMAGE=ghcr.io/owner/ocr-java-angular-project-10-web:v1.0.0
+#
+# Then:  docker login ghcr.io
+#         docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
+#         docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --no-build
+
+services:
+  api:
+    image: ${API_IMAGE}
+  web:
+    image: ${WEB_IMAGE}

@@ -7,7 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "test:coverage": "ng test --no-watch --coverage --coverage-reporters=text-summary --coverage-reporters=text",
+    "test:coverage": "ng test --no-watch --coverage --coverage-reporters=html --coverage-reporters=lcov --coverage-reporters=text-summary --coverage-reporters=text --reporters=default --reporters=junit --output-file=../test-results/TESTS-frontend.xml",
     "lint": "eslint .",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
