@@ -11,10 +11,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,6 +33,9 @@ class ChatMessageRepositoryTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @Test
     void findByChat_IdAndCreatedAtBeforeOrderByCreatedAtDesc_loadsOlderMessages() {
@@ -51,10 +56,12 @@ class ChatMessageRepositoryTest {
         m2.setUpdatedAt(tSecond);
         chatMessageRepository.save(m1);
         chatMessageRepository.save(m2);
+        // Auditing overwrites @CreatedDate on insert; pin rows in the DB so pagination is deterministic in CI.
+        forceMessageTimestamps(m1.getId(), tFirst);
+        forceMessageTimestamps(m2.getId(), tSecond);
 
-        LocalDateTime pivot = m2.getCreatedAt();
         var page = chatMessageRepository.findByChat_IdAndCreatedAtBeforeOrderByCreatedAtDesc(
-                chat.getId(), pivot, PageRequest.of(0, 10));
+                chat.getId(), tSecond, PageRequest.of(0, 10));
         assertThat(page.getContent()).hasSize(1);
         assertThat(page.getContent().getFirst().getContent()).isEqualTo("first");
     }
@@ -77,6 +84,8 @@ class ChatMessageRepositoryTest {
         mb.setUpdatedAt(tB);
         chatMessageRepository.save(ma);
         chatMessageRepository.save(mb);
+        forceMessageTimestamps(ma.getId(), tA);
+        forceMessageTimestamps(mb.getId(), tB);
 
         var page = chatMessageRepository.findByChat_IdOrderByCreatedAtDesc(chat.getId(), PageRequest.of(0, 10));
         assertThat(page.getContent()).hasSize(2);
@@ -99,5 +108,14 @@ class ChatMessageRepositoryTest {
         u.setPassword("password");
         u.setRole(role);
         return userRepository.save(u);
+    }
+
+    private void forceMessageTimestamps(UUID messageId, LocalDateTime createdAt) {
+        chatMessageRepository.flush();
+        jdbcTemplate.update(
+                "UPDATE chat_messages SET created_at = ?, updated_at = ? WHERE id = ?",
+                createdAt,
+                createdAt,
+                messageId);
     }
 }
